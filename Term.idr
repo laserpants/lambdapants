@@ -28,3 +28,8 @@ export Show t => Show (Term t) where
                            ++ show u ++ ")"
   show (Lam x t) = "Lam "  ++ show x ++ "(" 
                            ++ show t ++ ")"
+
+export total freeVars : Eq t => Term t -> List t
+freeVars (Var v)   = [v]
+freeVars (Lam v t) = delete v (freeVars t)
+freeVars (App s t) = freeVars s `union` freeVars t
