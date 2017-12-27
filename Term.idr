@@ -29,7 +29,14 @@ export Show t => Show (Term t) where
   show (Lam x t) = "Lam "  ++ show x ++ "(" 
                            ++ show t ++ ")"
 
-export total freeVars : Eq t => Term t -> List t
+||| Return a list of all variables which appear free in the term 't'.
+export total freeVars : { t : Type } -> Eq t => Term t -> List t
 freeVars (Var v)   = [v]
 freeVars (Lam v t) = delete v (freeVars t)
 freeVars (App s t) = freeVars s `union` freeVars t
+
+export total isRedex : { t : Type } -> Term t -> Bool
+isRedex (App (Lam _ _) _) = True
+isRedex (App e1 e2)       = isRedex e1 || isRedex e2
+isRedex (Lam _ e1)        = isRedex e1
+isRedex _                 = False
