@@ -21,3 +21,10 @@ export Eq t => Eq (Term t) where
   (Lam x t) == (Lam y u) = x == y && t == u
   (App t u) == (App v w) = t == v && u == w
   _         == _         = False
+
+export Show t => Show (Term t) where
+  show (Var v)   = "Var "  ++ show v
+  show (App t u) = "App (" ++ show t ++ ") (" 
+                           ++ show u ++ ")"
+  show (Lam x t) = "Lam "  ++ show x ++ "(" 
+                           ++ show t ++ ")"
