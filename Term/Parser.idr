@@ -12,7 +12,7 @@ name = do
   let name = head :: tail
   pure (pack name)
 
-lambda : (b : Parser (Term String)) -> Parser (Term String)
+lambda : (body : Parser (Term String)) -> Parser (Term String)
 lambda term = do
   char '\\'
   var <- name
@@ -20,6 +20,7 @@ lambda term = do
   body <- term
   pure (Lam var body)
 
+export 
 term : Parser (Term String)
 term = do
   terms <- some (spaces *> expr)
@@ -29,5 +30,3 @@ where
   expr = map Var name  -- x
     <|>| lambda term   -- \x.M
     <|>| parens term   -- (M)
-
-
