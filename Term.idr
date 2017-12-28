@@ -35,6 +35,7 @@ freeVars (Var v)   = [v]
 freeVars (Lam v t) = delete v (freeVars t)
 freeVars (App s t) = freeVars s `union` freeVars t
 
+||| Return a boolean to indicate whether the given term is reducible.
 export total isRedex : { t : Type } -> Term t -> Bool
 isRedex (App (Lam _ _) _) = True
 isRedex (App e1 e2)       = isRedex e1 || isRedex e2
