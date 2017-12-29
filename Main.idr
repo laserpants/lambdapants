@@ -36,6 +36,7 @@ env = catMaybes (map f
   , ("is_zero" , "\\n.n (\\x.false) true")
 --  LEQ := λm.λn.ISZERO (SUB m n)
   , ("zero"    , "\\f.\\x.x")
+  , ("fact"    , "\\k.k (\\p.p (\\a.\\b.\\g.g (\\f.\\x.f (a f x)) (\\f.a (b f))))(\\g.g (\\h.h) (\\h.h)) (\\a.\\b.b)")
 -- PAIR := λx.λy.λf.f x y
 -- FIRST := λp.p TRUE
 -- SECOND := λp.p FALSE
@@ -44,7 +45,9 @@ env = catMaybes (map f
   , ("0"       , "\\f.\\x.x")
   , ("1"       , "\\f.\\x.f x")
   , ("2"       , "\\f.\\x.f (f x)")
-  , ("3"       , "\\f.\\x.f (f (f x))") ])
+  , ("3"       , "\\f.\\x.f (f (f x))") 
+  , ("Y"       , "\\g.(\\x.g (x x)) (\\x.g (x x))") 
+  ])
 -- I := λx.x
 -- K := λx.λy.x
 -- S := λx.λy.λz.x z (y z)
