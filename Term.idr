@@ -54,7 +54,7 @@ freeVars (App t u) = freeVars t `union` freeVars u
 total isFreeIn : String -> Term -> Bool
 isFreeIn var term = elem var (freeVars term)
 
-||| All variables (free and bound) which appears in the term 't'.
+||| Return all variables (free and bound) which appears in the term 't'.
 export total vars : Term -> List String
 vars (Var v)   = [v]
 vars (Lam v t) = v :: vars t
