@@ -89,7 +89,7 @@ fresh term = diff where
 ||| @n a variable to substitute for
 ||| @e the term that the variable 'n' will be replaced with
 ||| @s the original term
-substitute : (n : String) -> (e : Term) -> (s : Term) -> Term
+export substitute : (n : String) -> (e : Term) -> (s : Term) -> Term
 substitute var expr = subst where
   subst : Term -> Term
   subst (Var v)     = if var == v then expr else Var v
