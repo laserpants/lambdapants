@@ -1,20 +1,20 @@
 module Term
 
 ||| In the lambda calculus, a term is one of three things:
-||| * A variable is a term; 
+||| * A variable is a term;
 ||| * Application of two terms is a term; and
-||| * A lambda abstraction is a term. 
+||| * A lambda abstraction is a term.
 |||
-||| Nothing else is a term. Application is left-associative, so the term 
-||| `(s t u)` is the same as `(s t) u`. One often omits outermost parentheses. 
+||| Nothing else is a term. Application is left-associative, so the term
+||| `(s t u)` is the same as `(s t) u`. One often omits outermost parentheses.
 ||| In abstractions, the body extends as far to the right as possible.
 public export data Term : Type where
   ||| Variable
-  Var : String -> Term 
+  Var : String -> Term
   ||| Lambda abstraction
-  Lam : String -> Term -> Term 
+  Lam : String -> Term -> Term
   ||| Application
-  App : Term -> Term -> Term 
+  App : Term -> Term -> Term
 
 export Eq Term where
   (Var a)   == (Var b)   = a == b
@@ -24,9 +24,9 @@ export Eq Term where
 
 export Show Term where
   show (Var v)   = "Var "  ++ show v
-  show (App t u) = "App (" ++ show t ++ ") (" 
+  show (App t u) = "App (" ++ show t ++ ") ("
                            ++ show u ++ ")"
-  show (Lam x t) = "Lam "  ++ show x ++ "(" 
+  show (Lam x t) = "Lam "  ++ show x ++ "("
                            ++ show t ++ ")"
 
 mutual
@@ -40,9 +40,9 @@ mutual
 
   export pretty : Term -> String
   pretty term =
-    case term of 
-         Lam _ _ => "(" ++ lam term ++ ")" 
-         App _ _ => "(" ++ app term ++ ")" 
+    case term of
+         Lam _ _ => "(" ++ lam term ++ ")"
+         App _ _ => "(" ++ app term ++ ")"
          Var var => var
 
 ||| Return a list of all variables which appear free in the term 't'.
@@ -69,9 +69,11 @@ isRedex _                 = False
 
 another : String -> String
 another name =
-  case unpack name of 
-       (c :: [])      => if 'a' <= c && 'z' > c then pack [succ c] else "x0"
-       (b :: c :: []) => if '0' <= c && '9' > c 
+  case unpack name of
+       (c :: [])      => if 'a' <= c && 'z' > c
+                            then pack [succ c]
+                            else pack (c :: '0' :: [])
+       (b :: c :: []) => if '0' <= c && '9' > c
                             then pack (b :: succ c :: [])
                             else name ++ "'"
        _              => name ++ "'"
@@ -87,22 +89,22 @@ fresh term = diff where
 ||| @n a variable to substitute for
 ||| @e the term that the variable 'n' will be replaced with
 ||| @s the original term
-substitute : (n : String) -> (e : Term) -> (s : Term) -> Term 
+substitute : (n : String) -> (e : Term) -> (s : Term) -> Term
 substitute var expr = subst where
   subst : Term -> Term
   subst (Var v)     = if var == v then expr else Var v
   subst (App e1 e2) = App (subst e1) (subst e2)
   subst (Lam x e) with (x == var)
     | True  = Lam x e -- If the variable we are susbstituting for is re-bound
-    | False = if x `isFreeIn` expr 
-                 then let x' = fresh e x 
+    | False = if x `isFreeIn` expr
+                 then let x' = fresh e x
                           e' = substitute x (Var x') e in
                       Lam x' (subst e')
                  else Lam x  (subst e)
 
 ||| Beta-reduction in /normal order/, defined in terms of 'substitute'.
-export reduct : (e : Term) -> Term 
+export reduct : (e : Term) -> Term
 reduct (App (Lam v t) s) = substitute v s t
 reduct (App t u)         = App (reduct t) (reduct u)
-reduct (Lam v t)         = Lam v (reduct t) 
+reduct (Lam v t)         = Lam v (reduct t)
 reduct term              = term

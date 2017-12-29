@@ -9,6 +9,7 @@ term1_0 = App (Lam "f" (Lam "x" (App (Var "f") (Var "x")))) (Lam "f" (Lam "x" (A
 
 main : IO ()
 main = do
+  putStrLn (pretty term1_0)
   putStrLn (pretty (reduct term1_0))
   putStrLn (pretty (reduct (reduct term1_0)))
-  putStrLn (pretty (reduct (reduct term1_0)))
+  putStrLn (pretty (reduct (reduct (reduct term1_0))))
