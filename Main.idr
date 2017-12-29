@@ -15,19 +15,40 @@ test = do
   putStrLn (pretty (reduct (reduct term1_0)))
   putStrLn (pretty (reduct (reduct (reduct term1_0))))
 
+Environment : Type
+Environment = List (String, Term)
+
+env : Environment
+env = catMaybes (map f
+  [ ("plus" , "\\m.\\n.\\f.\\x.m f (n f x)")
+  , ("succ" , "\\n.\\f.\\x.f (n f x)")
+  , ("mult" , "\\m.\\n.\\f.m (n f)")
+  , ("id"   , "\\x.x")
+  , ("0"    , "\\f.\\x.x")
+  , ("1"    , "\\f.\\x.f x")
+  , ("2"    , "\\f.\\x.f (f x)")
+  , ("3"    , "\\f.\\x.f (f (f x))") ])
+where
+  f : (String, String) -> Maybe (String, Term)
+  f (s, e) = case parse term e of 
+                  Left  _ => Nothing 
+                  Right t => Just (s, t)
+
 run : Term -> IO ()
 run term = do
   putStrLn (pretty term)
-  if isRedex term
-     then run (reduct term)
-     else pure ()
+  when (isRedex term) (run (reduct term))
+
+runWithEnv : Term -> Environment -> IO ()
+runWithEnv term env = run (foldr (uncurry substitute) term env) 
 
 main : IO ()
 main = loop where
   loop : IO ()
   loop = do
-    str <- readline "\x03BB "
+    putStr "? "
+    str <- getLine -- readline "\x03BB "
     case parse term str of
-         Left  _    => putStrLn "No parse"
-         Right term => run term
+         Left  _ => putStrLn "No parse"
+         Right t => runWithEnv t env 
     loop
