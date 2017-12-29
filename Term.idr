@@ -38,6 +38,7 @@ mutual
   app (App t u) = app t ++ " " ++ pretty u
   app term = pretty term
 
+  ||| Translate the given term to a Pretty-printed string.
   export pretty : Term -> String
   pretty term =
     case term of
