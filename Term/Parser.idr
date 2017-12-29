@@ -12,21 +12,20 @@ name = do
   let name = head :: tail
   pure (pack name)
 
-lambda : (body : Parser (Term String)) -> Parser (Term String)
+lambda : (body : Parser Term) -> Parser Term
 lambda term = do
   char '\\'
-  var <- name
+  var  <- name
   char '.'
   body <- term
   pure (Lam var body)
 
-export 
-term : Parser (Term String)
+export term : Parser Term
 term = do
   terms <- some (spaces *> expr)
   pure (foldl1 App terms)
 where
-  expr : Parser (Term String)
+  expr : Parser Term
   expr = map Var name  -- x
     <|>| lambda term   -- \x.M
     <|>| parens term   -- (M)
