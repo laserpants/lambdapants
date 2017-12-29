@@ -25,14 +25,36 @@ env = catMaybes (map f
   , ("pred"    , "\\n.\\f.\\x.n (\\g.\\h.h (g f)) (\\u.x) (\\u.u)")
   , ("mult"    , "\\m.\\n.\\f.m (n f)")
   , ("sub"     , "\\m.\\n.n pred m")
+  , ("pow"     , "\\b.\\e.e b")
   , ("id"      , "\\x.x")
   , ("true"    , "\\x.\\y.x")
   , ("false"   , "\\x.\\y.y")
+-- AND := λp.λq.p q p
+-- OR := λp.λq.p p q
+-- NOT := λp.p FALSE TRUE
+-- IFTHENELSE := λp.λa.λb.p a b
   , ("is_zero" , "\\n.n (\\x.false) true")
+--  LEQ := λm.λn.ISZERO (SUB m n)
+  , ("zero"    , "\\f.\\x.x")
+-- PAIR := λx.λy.λf.f x y
+-- FIRST := λp.p TRUE
+-- SECOND := λp.p FALSE
+-- NIL := λx.TRUE
+-- NULL := λp.p (λx.λy.FALSE)
   , ("0"       , "\\f.\\x.x")
   , ("1"       , "\\f.\\x.f x")
   , ("2"       , "\\f.\\x.f (f x)")
   , ("3"       , "\\f.\\x.f (f (f x))") ])
+-- I := λx.x
+-- K := λx.λy.x
+-- S := λx.λy.λz.x z (y z)
+-- B := λx.λy.λz.x (y z)
+-- C := λx.λy.λz.x z y
+-- W := λx.λy.x y y
+-- U := λx.λy.y (x x y)
+-- ω := λx.x x
+-- Ω := ω ω
+-- Y := λg.(λx.g (x x)) (λx.g (x x))
 where
   f : (String, String) -> Maybe (String, Term)
   f (s, e) = case parse term e of 
