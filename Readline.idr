@@ -5,4 +5,4 @@ module Readline
 %include C "readline/history.h"
 
 export readline : String -> IO String
-readline = foreign FFI_C "readline" (String -> IO String) 
+readline = foreign FFI_C "readline" (String -> IO String)
