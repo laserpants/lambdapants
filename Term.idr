@@ -70,10 +70,10 @@ isRedex _                 = False
 another : String -> String
 another name =
   case unpack name of
-       (c :: [])      => if 'a' <= c && 'z' > c
+       (c :: [])      => if 'a' <= c && c < 'z'
                             then pack [succ c]
                             else pack (c :: '0' :: [])
-       (b :: c :: []) => if '0' <= c && '9' > c
+       (b :: c :: []) => if '0' <= c && c < '9'
                             then pack (b :: succ c :: [])
                             else name ++ "'"
        _              => name ++ "'"
