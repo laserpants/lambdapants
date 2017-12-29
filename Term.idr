@@ -8,36 +8,101 @@ module Term
 ||| Nothing else is a term. Application is left-associative, so the term 
 ||| `(s t u)` is the same as `(s t) u`. One often omits outermost parentheses. 
 ||| In abstractions, the body extends as far to the right as possible.
-public export data Term : Type -> Type where
+public export data Term : Type where
   ||| Variable
-  Var : (v : t) -> Term t
+  Var : String -> Term 
   ||| Lambda abstraction
-  Lam : (v : t) -> Term t -> Term t
+  Lam : String -> Term -> Term 
   ||| Application
-  App : Term t  -> Term t -> Term t
+  App : Term -> Term -> Term 
 
-export Eq t => Eq (Term t) where
+export Eq Term where
   (Var a)   == (Var b)   = a == b
   (Lam x t) == (Lam y u) = x == y && t == u
   (App t u) == (App v w) = t == v && u == w
   _         == _         = False
 
-export Show t => Show (Term t) where
+export Show Term where
   show (Var v)   = "Var "  ++ show v
   show (App t u) = "App (" ++ show t ++ ") (" 
                            ++ show u ++ ")"
   show (Lam x t) = "Lam "  ++ show x ++ "(" 
                            ++ show t ++ ")"
 
+mutual
+  lam : Term -> String
+  lam (Lam x t) = "\x03BB" ++ x ++ "." ++ lam t
+  lam term = app term
+
+  app : Term -> String
+  app (App t u) = app t ++ " " ++ pretty u
+  app term = pretty term
+
+  export pretty : Term -> String
+  pretty term =
+    case term of 
+         Lam _ _ => "(" ++ lam term ++ ")" 
+         App _ _ => "(" ++ app term ++ ")" 
+         Var var => var
+
 ||| Return a list of all variables which appear free in the term 't'.
-export total freeVars : { t : Type } -> Eq t => Term t -> List t
+export total freeVars : Term -> List String
 freeVars (Var v)   = [v]
 freeVars (Lam v t) = delete v (freeVars t)
-freeVars (App s t) = freeVars s `union` freeVars t
+freeVars (App t u) = freeVars t `union` freeVars u
+
+total isFreeIn : String -> Term -> Bool
+isFreeIn var term = elem var (freeVars term)
+
+||| All variables (free and bound) which appears in the term 't'.
+export total vars : Term -> List String
+vars (Var v)   = [v]
+vars (Lam v t) = v :: vars t
+vars (App t u) = vars t ++ vars u
 
 ||| Return a boolean to indicate whether the given term is reducible.
-export total isRedex : { t : Type } -> Term t -> Bool
+export total isRedex : Term -> Bool
 isRedex (App (Lam _ _) _) = True
 isRedex (App e1 e2)       = isRedex e1 || isRedex e2
 isRedex (Lam _ e1)        = isRedex e1
 isRedex _                 = False
+
+another : String -> String
+another name =
+  case unpack name of 
+       (c :: [])      => if 'a' <= c && 'z' > c then pack [succ c] else "x0"
+       (b :: c :: []) => if '0' <= c && '9' > c 
+                            then pack (b :: succ c :: [])
+                            else name ++ "'"
+       _              => name ++ "'"
+
+fresh : Term -> String -> String
+fresh term = diff where
+  names : List String
+  names = vars term
+  diff : String -> String
+  diff x = let x' = another x in if x' `elem` names then diff x' else x'
+
+||| Perform the substitution `s[ n := e ]`.
+||| @n a variable to substitute for
+||| @e the term that the variable 'n' will be replaced with
+||| @s the original term
+substitute : (n : String) -> (e : Term) -> (s : Term) -> Term 
+substitute var expr = subst where
+  subst : Term -> Term
+  subst (Var v)     = if var == v then expr else Var v
+  subst (App e1 e2) = App (subst e1) (subst e2)
+  subst (Lam x e) with (x == var)
+    | True  = Lam x e -- If the variable we are susbstituting for is re-bound
+    | False = if x `isFreeIn` expr 
+                 then let x' = fresh e x 
+                          e' = substitute x (Var x') e in
+                      Lam x' (subst e')
+                 else Lam x  (subst e)
+
+||| Beta-reduction in /normal order/, defined in terms of 'substitute'.
+export reduct : (e : Term) -> Term 
+reduct (App (Lam v t) s) = substitute v s t
+reduct (App t u)         = App (reduct t) (reduct u)
+reduct (Lam v t)         = Lam v (reduct t) 
+reduct term              = term
