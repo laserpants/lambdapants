@@ -20,14 +20,19 @@ Environment = List (String, Term)
 
 env : Environment
 env = catMaybes (map f
-  [ ("plus" , "\\m.\\n.\\f.\\x.m f (n f x)")
-  , ("succ" , "\\n.\\f.\\x.f (n f x)")
-  , ("mult" , "\\m.\\n.\\f.m (n f)")
-  , ("id"   , "\\x.x")
-  , ("0"    , "\\f.\\x.x")
-  , ("1"    , "\\f.\\x.f x")
-  , ("2"    , "\\f.\\x.f (f x)")
-  , ("3"    , "\\f.\\x.f (f (f x))") ])
+  [ ("plus"    , "\\m.\\n.\\f.\\x.m f (n f x)")
+  , ("succ"    , "\\n.\\f.\\x.f (n f x)")
+  , ("pred"    , "\\n.\\f.\\x.n (\\g.\\h.h (g f)) (\\u.x) (\\u.u)")
+  , ("mult"    , "\\m.\\n.\\f.m (n f)")
+  , ("sub"     , "\\m.\\n.n pred m")
+  , ("id"      , "\\x.x")
+  , ("true"    , "\\x.\\y.x")
+  , ("false"   , "\\x.\\y.y")
+  , ("is_zero" , "\\n.n (\\x.false) true")
+  , ("0"       , "\\f.\\x.x")
+  , ("1"       , "\\f.\\x.f x")
+  , ("2"       , "\\f.\\x.f (f x)")
+  , ("3"       , "\\f.\\x.f (f (f x))") ])
 where
   f : (String, String) -> Maybe (String, Term)
   f (s, e) = case parse term e of 

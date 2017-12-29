@@ -5,10 +5,13 @@ import Lightyear.Char
 import Lightyear.Strings
 import Term
 
+valid : Parser Char
+valid = alphaNum <|> char '_'
+
 name : Parser String
 name = do
-  head <- alphaNum
-  tail <- many (alphaNum <|> char '\'')
+  head <- valid
+  tail <- many valid
   let name = head :: tail
   pure (pack name)
 
