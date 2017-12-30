@@ -5,21 +5,11 @@ import Readline
 import Term
 import Term.Parser
 
-term1_0 : Term
-term1_0 = App (Lam "f" (Lam "x" (App (Var "f") (Var "x")))) (Lam "f" (Lam "x" (App (Var "f") (Var "x"))))
-
-test : IO ()
-test = do
-  putStrLn (pretty term1_0)
-  putStrLn (pretty (reduct term1_0))
-  putStrLn (pretty (reduct (reduct term1_0)))
-  putStrLn (pretty (reduct (reduct (reduct term1_0))))
-
 Environment : Type
 Environment = List (String, Term)
 
-env : Environment
-env = catMaybes (map f
+stdEnv : Environment
+stdEnv = catMaybes (map f
   [ ("plus"    , "\\m.\\n.\\f.\\x.m f (n f x)")
   , ("succ"    , "\\n.\\f.\\x.f (n f x)")
   , ("pred"    , "\\n.\\f.\\x.n (\\g.\\h.h (g f)) (\\u.x) (\\u.u)")
@@ -29,12 +19,12 @@ env = catMaybes (map f
   , ("id"      , "\\x.x")
   , ("true"    , "\\x.\\y.x")
   , ("false"   , "\\x.\\y.y")
--- AND := λp.λq.p q p
--- OR := λp.λq.p p q
--- NOT := λp.p FALSE TRUE
--- IFTHENELSE := λp.λa.λb.p a b
+  , ("and"     , "\\p.\\q.p q p")
+  , ("or"      , "\\p.\\q.p p q")
+  , ("not"     , "\\p.p false true")
+  , ("if"      , "\\p.\\a.\\b.p a b")
   , ("is_zero" , "\\n.n (\\x.false) true")
---  LEQ := λm.λn.ISZERO (SUB m n)
+  , ("leq"     , "\\m.\\n.is_zero (sub m n)")
   , ("zero"    , "\\f.\\x.x")
   , ("fact"    , "\\k.k (\\p.p (\\a.\\b.\\g.g (\\f.\\x.f (a f x)) (\\f.a (b f))))(\\g.g (\\h.h) (\\h.h)) (\\a.\\b.b)")
 -- PAIR := λx.λy.λf.f x y
@@ -76,9 +66,12 @@ main : IO ()
 main = loop where
   loop : IO ()
   loop = do
-    putStr "? "
-    str <- getLine -- readline "\x03BB "
-    case parse term str of
-         Left  _ => putStrLn "No parse"
-         Right t => runWithEnv t env 
-    loop
+    line <- readline "\x03BB "
+    case line of
+         Just ""  => loop
+         Just str => do 
+           case parse term str of 
+                Right t => runWithEnv t stdEnv 
+                Left  _ => putStrLn "Why you no parse?"
+           loop
+         Nothing => putStrLn "Bye!" 
