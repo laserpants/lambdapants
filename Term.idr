@@ -79,12 +79,19 @@ another name =
                             else name ++ "'"
        _              => name ++ "'"
 
-fresh : Term -> String -> String
-fresh term = diff where
+fresh : Term -> Term -> String -> String
+fresh expr term = diff where
   names : List String
-  names = vars term
+  names = union (freeVars expr) (vars term)
   diff : String -> String
   diff x = let x' = another x in if x' `elem` names then diff x' else x'
+
+alphaConvert : String -> String -> Term -> Term
+alphaConvert from to term = 
+  case term of
+       (Var v)     => Var (if v == from then to else v)
+       (App e1 e2) => App (alphaConvert from to e1) (alphaConvert from to e2)
+       (Lam x e)   => Lam (if x == from then to else x) (alphaConvert from to e)
 
 ||| Perform the substitution `s[ n := e ]`.
 ||| @n a variable to substitute for
@@ -98,14 +105,16 @@ substitute var expr = subst where
   subst (Lam x e) with (x == var)
     | True  = Lam x e -- If the variable we are susbstituting for is re-bound
     | False = if x `isFreeIn` expr
-                 then let x' = fresh e x
-                          e' = substitute x (Var x') e in
+                 then let x' = fresh expr e x
+                          e' = alphaConvert x x' e in
                       Lam x' (subst e')
                  else Lam x  (subst e)
 
 ||| Beta-reduction in /normal order/, defined in terms of 'substitute'.
 export reduct : (e : Term) -> Term
 reduct (App (Lam v t) s) = substitute v s t
-reduct (App t u)         = App (reduct t) (reduct u)
-reduct (Lam v t)         = Lam v (reduct t)
-reduct term              = term
+reduct (Lam v t) = Lam v (reduct t)
+reduct (App t u) = if isRedex t 
+                      then App (reduct t) u
+                      else App t (reduct u)
+reduct term = term
