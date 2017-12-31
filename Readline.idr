@@ -12,3 +12,6 @@ readline prompt = do
   text <- readline_unsafe prompt
   null <- nullStr text
   pure (toMaybe (not null) text)
+
+export addHistory : String -> IO ()
+addHistory = foreign FFI_C "add_history" (String -> IO ())
