@@ -27,16 +27,16 @@ stdEnv = catMaybes (map f
   , ("leq"     , "\\m.\\n.is_zero (sub m n)")
   , ("zero"    , "\\f.\\x.x")
   , ("fact"    , "\\k.k (\\p.p (\\a.\\b.\\g.g (\\f.\\x.f (a f x)) (\\f.a (b f))))(\\g.g (\\h.h) (\\h.h)) (\\a.\\b.b)")
+  , ("Y"       , "\\g.(\\x.g (x x)) (\\x.g (x x))") 
 -- PAIR := λx.λy.λf.f x y
 -- FIRST := λp.p TRUE
 -- SECOND := λp.p FALSE
 -- NIL := λx.TRUE
 -- NULL := λp.p (λx.λy.FALSE)
-  , ("0"       , "\\f.\\x.x")
-  , ("1"       , "\\f.\\x.f x")
-  , ("2"       , "\\f.\\x.f (f x)")
-  , ("3"       , "\\f.\\x.f (f (f x))") 
-  , ("Y"       , "\\g.(\\x.g (x x)) (\\x.g (x x))") 
+--  , ("0"       , "\\f.\\x.x")
+--  , ("1"       , "\\f.\\x.f x")
+--  , ("2"       , "\\f.\\x.f (f x)")
+--  , ("3"       , "\\f.\\x.f (f (f x))") 
   ])
 -- I := λx.x
 -- K := λx.λy.x
