@@ -38,7 +38,7 @@ mutual
   app (App t u) = app t ++ " " ++ pretty u
   app term = pretty term
 
-  ||| Translate the given term to a Pretty-printed string.
+  ||| Translate the given term to a pretty-printed string.
   export pretty : Term -> String
   pretty term =
     case term of
@@ -52,7 +52,9 @@ freeVars (Var v)   = [v]
 freeVars (Lam v t) = delete v (freeVars t)
 freeVars (App t u) = freeVars t `union` freeVars u
 
-total isFreeIn : String -> Term -> Bool
+||| Return a boolean to indicate whether the variable 'v' appears free in the 
+||| term 't'.
+total isFreeIn : (v : String) -> (t : Term) -> Bool
 isFreeIn var term = elem var (freeVars term)
 
 ||| Return all variables (free and bound) which appears in the term 't'.
@@ -79,22 +81,19 @@ another name =
                             else name ++ "'"
        _              => name ++ "'"
 
---fresh : Term -> Term -> String -> String
---fresh expr term = diff where
 fresh : Term -> String -> String
 fresh expr = diff where
   names : List String
-  --names = union (freeVars expr) (vars term)
   names = freeVars expr 
   diff : String -> String
   diff x = let x' = another x in if x' `elem` names then diff x' else x'
 
-alphaConvert : String -> String -> Term -> Term
-alphaConvert from to term = 
+alphaRename : String -> String -> Term -> Term
+alphaRename from to term = 
   case term of
        (Var v)     => Var (if v == from then to else v)
-       (App e1 e2) => App (alphaConvert from to e1) (alphaConvert from to e2)
-       (Lam x e)   => Lam (if x == from then to else x) (alphaConvert from to e)
+       (App e1 e2) => App (alphaRename from to e1) (alphaRename from to e2)
+       (Lam x e)   => Lam (if x == from then to else x) (alphaRename from to e)
 
 ||| Perform the substitution `s[ n := e ]`.
 ||| @n a variable to substitute for
@@ -109,7 +108,7 @@ substitute var expr = subst where
     | True  = Lam x e -- If the variable we are susbstituting for is re-bound
     | False = if x `isFreeIn` expr
                  then let x' = fresh expr x
-                          e' = alphaConvert x x' e in
+                          e' = alphaRename x x' e in
                       Lam x' (subst e')
                  else Lam x  (subst e)
 
