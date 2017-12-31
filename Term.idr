@@ -79,10 +79,13 @@ another name =
                             else name ++ "'"
        _              => name ++ "'"
 
-fresh : Term -> Term -> String -> String
-fresh expr term = diff where
+--fresh : Term -> Term -> String -> String
+--fresh expr term = diff where
+fresh : Term -> String -> String
+fresh expr = diff where
   names : List String
-  names = union (freeVars expr) (vars term)
+  --names = union (freeVars expr) (vars term)
+  names = freeVars expr 
   diff : String -> String
   diff x = let x' = another x in if x' `elem` names then diff x' else x'
 
@@ -105,7 +108,7 @@ substitute var expr = subst where
   subst (Lam x e) with (x == var)
     | True  = Lam x e -- If the variable we are susbstituting for is re-bound
     | False = if x `isFreeIn` expr
-                 then let x' = fresh expr e x
+                 then let x' = fresh expr x
                           e' = alphaConvert x x' e in
                       Lam x' (subst e')
                  else Lam x  (subst e)
