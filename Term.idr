@@ -61,7 +61,7 @@ isFreeIn var term = elem var (freeVars term)
 export total vars : Term -> List String
 vars (Var v)   = [v]
 vars (Lam v t) = v :: vars t
-vars (App t u) = union (vars t) (vars u)
+vars (App t u) = vars t `union` vars u
 
 ||| Return a boolean to indicate whether the given term is reducible.
 export total isRedex : Term -> Bool
