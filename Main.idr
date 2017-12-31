@@ -84,7 +84,7 @@ main : IO ()
 main = loop where
   loop : IO ()
   loop = do
-    line <- readline ((decorate "0;97" "\x03bb") ++ " ") -- Lambda sign
+    line <- readline ((decorate "0;92" "\x03bb") ++ " ") -- Lambda sign
     case line of
          Just ""  => loop
          Just str => do 
