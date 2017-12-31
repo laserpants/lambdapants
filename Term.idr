@@ -26,7 +26,7 @@ export Show Term where
   show (Var v)   = "Var "  ++ show v
   show (App t u) = "App (" ++ show t ++ ") ("
                            ++ show u ++ ")"
-  show (Lam x t) = "Lam "  ++ show x ++ "("
+  show (Lam x t) = "Lam "  ++ show x ++ " ("
                            ++ show t ++ ")"
 
 mutual
