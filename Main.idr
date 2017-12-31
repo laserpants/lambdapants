@@ -8,6 +8,9 @@ import Term.Parser
 Environment : Type
 Environment = List (String, Term)
 
+--mkNat : Nat -> Term
+--mkNat 0 = Lam "f" ()
+
 stdEnv : Environment
 stdEnv = catMaybes (map f
   [ ("plus"    , "\\m.\\n.\\f.\\x.m f (n f x)")
@@ -33,10 +36,10 @@ stdEnv = catMaybes (map f
 -- SECOND := λp.p FALSE
 -- NIL := λx.TRUE
 -- NULL := λp.p (λx.λy.FALSE)
---  , ("0"       , "\\f.\\x.x")
---  , ("1"       , "\\f.\\x.f x")
---  , ("2"       , "\\f.\\x.f (f x)")
---  , ("3"       , "\\f.\\x.f (f (f x))") 
+  , ("0"       , "\\f.\\x.x")
+  , ("1"       , "\\f.\\x.f x")
+  , ("2"       , "\\f.\\x.f (f x)")
+  , ("3"       , "\\f.\\x.f (f (f x))") 
   ])
 -- I := λx.x
 -- K := λx.λy.x
@@ -54,13 +57,18 @@ where
                   Left  _ => Nothing 
                   Right t => Just (s, t)
 
-run : Term -> IO ()
-run term = do
+run : Nat -> Term -> IO ()
+run count term = do
   putStrLn (pretty term)
-  when (isRedex term) (run (reduct term))
+  when (isRedex term && count < 280) (run (succ count) (reduct term))
 
 runWithEnv : Term -> Environment -> IO ()
-runWithEnv term env = run (foldr (uncurry substitute) term env) 
+runWithEnv term env = run 0 (foldr (uncurry substitute) term env) 
+
+partial parseUnsafe : String -> Term
+parseUnsafe input =
+  case parse term input of
+       Right term => term
 
 main : IO ()
 main = loop where
@@ -72,6 +80,6 @@ main = loop where
          Just str => do 
            case parse term str of 
                 Right t => runWithEnv t stdEnv 
-                Left  _ => putStrLn "Why you no parse?"
+                Left  _ => putStrLn "¯\\_(ツ)_/¯"
            loop
          Nothing => putStrLn "Bye!" 
