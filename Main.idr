@@ -11,6 +11,9 @@ Environment = List (String, Term)
 --mkNat : Nat -> Term
 --mkNat 0 = Lam "f" ()
 
+decorate : String -> String -> String
+decorate code str = "\x01b[" ++ code ++ "m" ++ str ++ "\x01b[0m"
+
 stdEnv : Environment
 stdEnv = catMaybes (map f
   [ ("plus"    , "\\m.\\n.\\f.\\x.m f (n f x)")
@@ -59,8 +62,15 @@ where
 
 run : Nat -> Term -> IO ()
 run count term = do
+  when (count > 0) (putStr ((decorate "0;97" "\x21d2") ++ " ")) -- Right arrow
   putStrLn (pretty term)
-  when (isRedex term && count < 280) (run (succ count) (reduct term))
+  when (isRedex term) continue 
+where
+  continue : IO ()
+  continue = 
+    if (count >= 150) 
+       then putStrLn ((decorate "1;91" "Terminated! ") ++ "Too many reductions.")
+       else run (succ count) (reduct term)
 
 runWithEnv : Term -> Environment -> IO ()
 runWithEnv term env = run 0 (foldr (uncurry substitute) term env) 
@@ -74,12 +84,13 @@ main : IO ()
 main = loop where
   loop : IO ()
   loop = do
-    line <- readline "\x03BB "
+    line <- readline ((decorate "0;97" "\x03bb") ++ " ") -- Lambda sign
     case line of
          Just ""  => loop
          Just str => do 
+           addHistory str
            case parse term str of 
                 Right t => runWithEnv t stdEnv 
-                Left  _ => putStrLn "¯\\_(ツ)_/¯"
+                Left  _ => putStrLn ((decorate "1;91" "Error! ") ++ "Not a valid term.")
            loop
          Nothing => putStrLn "Bye!" 
