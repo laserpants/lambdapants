@@ -5,14 +5,11 @@ import Readline
 import Term
 import Term.Parser
 
+decorate : String -> String -> String
+decorate code str = "\ESC[" ++ code ++ "m" ++ str ++ "\ESC[0m"
+
 Environment : Type
 Environment = List (String, Term)
-
---mkNat : Nat -> Term
---mkNat 0 = Lam "f" ()
-
-decorate : String -> String -> String
-decorate code str = "\x01b[" ++ code ++ "m" ++ str ++ "\x01b[0m"
 
 stdEnv : Environment
 stdEnv = catMaybes (map f
@@ -33,27 +30,32 @@ stdEnv = catMaybes (map f
   , ("leq"     , "\\m.\\n.is_zero (sub m n)")
   , ("zero"    , "\\f.\\x.x")
   , ("fact"    , "\\k.k (\\p.p (\\a.\\b.\\g.g (\\f.\\x.f (a f x)) (\\f.a (b f))))(\\g.g (\\h.h) (\\h.h)) (\\a.\\b.b)")
+
+  -- SKI combinators
+
   , ("Y"       , "\\g.(\\x.g (x x)) (\\x.g (x x))") 
--- PAIR := λx.λy.λf.f x y
--- FIRST := λp.p TRUE
--- SECOND := λp.p FALSE
--- NIL := λx.TRUE
--- NULL := λp.p (λx.λy.FALSE)
+  , ("I"       , "\\x.x")
+  , ("K"       , "\\x.\\y.x")
+  , ("S"       , "\\x.\\y.\\z.x z (y z)")
+  , ("B"       , "\\x.\\y.\\z.x (y z)")
+  , ("C"       , "\\x.\\y.\\z.x z y")
+  , ("W"       , "\\x.\\y.x y y")
+  , ("U"       , "\\x.\\y.y (x x y)")
+  , ("omega"   , "\\x.x x")
+  , ("Omega"   , "omega omega")
+
+  , ("pair"    , "\\x.\\y.\\f.f x y")
+  , ("first"   , "\\p.p true")
+  , ("second"  , "\\p.p false")
+  , ("nil"     , "\\x.true")
+  , ("null"    , "\\p.p (\\x.\\y.false)")
+
   , ("0"       , "\\f.\\x.x")
   , ("1"       , "\\f.\\x.f x")
   , ("2"       , "\\f.\\x.f (f x)")
   , ("3"       , "\\f.\\x.f (f (f x))") 
   ])
--- I := λx.x
--- K := λx.λy.x
--- S := λx.λy.λz.x z (y z)
--- B := λx.λy.λz.x (y z)
--- C := λx.λy.λz.x z y
--- W := λx.λy.x y y
--- U := λx.λy.y (x x y)
--- ω := λx.x x
--- Ω := ω ω
--- Y := λg.(λx.g (x x)) (λx.g (x x))
+
 where
   f : (String, String) -> Maybe (String, Term)
   f (s, e) = case parse term e of 
