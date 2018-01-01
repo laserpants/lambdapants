@@ -88,7 +88,10 @@ parseUnsafe input =
        Right term => term
 
 main : IO ()
-main = loop where
+main = do
+  putStrLn (decorate "1;37" "lambdapants" ++ " version 0.0.1")
+  loop
+where
   loop : IO ()
   loop = do
     line <- readline (decorate "0;92" "\x03bb" ++ " ") -- Lambda sign
