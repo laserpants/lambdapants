@@ -1,9 +1,9 @@
 module Term
 
 ||| In the lambda calculus, a term is one of three things:
-||| * A variable is a term;
-||| * Application of two terms is a term; and
-||| * A lambda abstraction is a term.
+|||   * A variable is a term;
+|||   * Application of two terms is a term; and
+|||   * A lambda abstraction is a term.
 |||
 ||| Nothing else is a term. Application is left-associative, so the term
 ||| `(s t u)` is the same as `(s t) u`. One often omits outermost parentheses.
@@ -112,7 +112,7 @@ substitute var expr = subst where
                       Lam x' (subst e')
                  else Lam x  (subst e)
 
-||| Beta-reduction in /normal order/, defined in terms of 'substitute'.
+||| Beta-reduction in *normal order*, defined in terms of 'substitute'.
 export reduct : (e : Term) -> Term
 reduct (App (Lam v t) s) = substitute v s t
 reduct (Lam v t) = Lam v (reduct t)
