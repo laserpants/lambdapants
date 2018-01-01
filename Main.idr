@@ -94,9 +94,8 @@ parseUnsafe input =
 
 main : IO ()
 main = do
-  putStr "Welcome to "
   fancyPutStr "1;37" "lambdapants"
-  putStrLn " version 0.0.1"
+  putStrLn " \x03bb_\x03bb version 0.0.1"
   loop
 where
   loop : IO ()
