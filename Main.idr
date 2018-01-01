@@ -5,9 +5,11 @@ import Readline
 import Term
 import Term.Parser
 
-decorate : String -> String -> String
-decorate code str = str
---decorate code str = "\001\ESC[0" ++ code ++ "m\002" ++ str ++ "\001\ESC[00m\002"
+fancyPutStr : String -> String -> IO ()
+fancyPutStr code str = do
+  putStr ("\ESC[" ++ code ++ "m")
+  putStr str
+  putStr "\ESC[0m"
 
 export mkChurch : Nat -> Term
 mkChurch n = Lam "f" (Lam "x" nat) where
@@ -39,7 +41,7 @@ stdEnv = catMaybes (map f
 
   -- SKI combinators
 
-  , ("Y"       , "\\g.(\\x.g (x x)) (\\x.g (x x))") 
+  , ("Y"       , "\\g.(\\x.g (x x)) (\\x.g (x x))")
   , ("I"       , "\\x.x")
   , ("K"       , "\\x.\\y.x")
   , ("S"       , "\\x.\\y.\\z.x z (y z)")
@@ -59,29 +61,31 @@ stdEnv = catMaybes (map f
   , ("0"       , "\\f.\\x.x")
   , ("1"       , "\\f.\\x.f x")
   , ("2"       , "\\f.\\x.f (f x)")
-  , ("3"       , "\\f.\\x.f (f (f x))") 
+  , ("3"       , "\\f.\\x.f (f (f x))")
   ])
 
 where
   f : (String, String) -> Maybe (String, Term)
-  f (s, e) = case parse term e of 
-                  Left  _ => Nothing 
+  f (s, e) = case parse term e of
+                  Left  _ => Nothing
                   Right t => Just (s, t)
 
 run : Nat -> Term -> IO ()
 run count term = do
-  when (count > 0) (putStr (decorate "0;32" "\x21d2" ++ " ")) -- Right arrow
+  when (count > 0) (fancyPutStr "0;32" "\x21d2 ") -- Right arrow
   putStrLn (pretty term)
-  when (isRedex term) continue 
+  when (isRedex term) continue
 where
   continue : IO ()
-  continue = 
-    if (count >= 150) 
-       then putStrLn (decorate "1;91" "Terminated! " ++ "Too many reductions.")
+  continue =
+    if (count >= 150)
+       then do
+         fancyPutStr "1;91" "Terminated! "
+         putStrLn "Too many reductions."
        else run (succ count) (reduct term)
 
 runWithEnv : Term -> Environment -> IO ()
-runWithEnv term env = run 0 (foldr (uncurry substitute) term env) 
+runWithEnv term env = run 0 (foldr (uncurry substitute) term env)
 
 partial parseUnsafe : String -> Term
 parseUnsafe input =
@@ -90,18 +94,23 @@ parseUnsafe input =
 
 main : IO ()
 main = do
-  putStrLn (decorate "1;37" "lambdapants" ++ " version 0.0.1")
+  putStr "Welcome to "
+  fancyPutStr "1;37" "lambdapants"
+  putStrLn " version 0.0.1"
   loop
 where
   loop : IO ()
   loop = do
-    line <- readline (decorate "0;92" "\x03bb" ++ " ") -- Lambda sign
+    line <- readline "\001\ESC[0;92m\002\x03bb\001\ESC[0m\002 " -- Lambda sign
     case line of
          Just ""  => loop
-         Just str => do 
+         Just str => do
            addHistory str
-           case parse term str of 
-                Right t => runWithEnv t stdEnv 
-                Left  _ => putStrLn (decorate "1;91" "Error! " ++ "Not a valid term.")
+           case parse term str of
+                Right t => runWithEnv t stdEnv
+                Left  _ => do
+                  fancyPutStr "1;91" "Error! "
+                  putStrLn "Not a valid term."
            loop
-         Nothing => putStrLn ("\n" ++ decorate "0;37" "Bye!")
+         Nothing => do
+           fancyPutStr "0;37" "\nBye!\n"
