@@ -41,7 +41,6 @@ stdEnv = catMaybes (map f
 
   -- SKI combinators
 
-  , ("Y"       , "\\g.(\\x.g (x x)) (\\x.g (x x))")
   , ("I"       , "\\x.x")
   , ("K"       , "\\x.\\y.x")
   , ("S"       , "\\x.\\y.\\z.x z (y z)")
@@ -49,6 +48,7 @@ stdEnv = catMaybes (map f
   , ("C"       , "\\x.\\y.\\z.x z y")
   , ("W"       , "\\x.\\y.x y y")
   , ("U"       , "\\x.\\y.y (x x y)")
+  , ("Y"       , "\\g.(\\x.g (x x)) (\\x.g (x x))")
   , ("omega"   , "\\x.x x")
   , ("Omega"   , "omega omega")
 
@@ -112,5 +112,4 @@ where
                   fancyPutStr "1;91" "Error! "
                   putStrLn "Not a valid term."
            loop
-         Nothing => do
-           fancyPutStr "0;37" "\nBye!\n"
+         Nothing => fancyPutStr "0;37" "\nBye!\n"
