@@ -8,6 +8,11 @@ import Term.Parser
 decorate : String -> String -> String
 decorate code str = "\ESC[" ++ code ++ "m" ++ str ++ "\ESC[0m"
 
+export mkChurch : Nat -> Term
+mkChurch n = Lam "f" (Lam "x" nat) where
+  nat : Term
+  nat = foldr apply (Var "x") (take n (repeat (Term.App (Var "f"))))
+
 Environment : Type
 Environment = List (String, Term)
 
