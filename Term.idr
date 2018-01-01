@@ -52,7 +52,7 @@ freeVars (Var v)   = [v]
 freeVars (Lam v t) = delete v (freeVars t)
 freeVars (App t u) = freeVars t `union` freeVars u
 
-||| Return a boolean to indicate whether the variable 'v' appears free in the 
+||| Return a boolean to indicate whether the variable 'v' appears free in the
 ||| term 't'.
 total isFreeIn : (v : String) -> (t : Term) -> Bool
 isFreeIn var term = elem var (freeVars term)
@@ -84,12 +84,12 @@ another name =
 fresh : Term -> String -> String
 fresh expr = diff where
   names : List String
-  names = freeVars expr 
+  names = freeVars expr
   diff : String -> String
   diff x = let x' = another x in if x' `elem` names then diff x' else x'
 
 alphaRename : String -> String -> Term -> Term
-alphaRename from to term = 
+alphaRename from to term =
   case term of
        (Var v)     => Var (if v == from then to else v)
        (App e1 e2) => App (alphaRename from to e1) (alphaRename from to e2)
@@ -111,12 +111,52 @@ substitute var expr = subst where
                           e' = alphaRename x x' e in
                       Lam x' (subst e')
                  else Lam x  (subst e)
-
 ||| Beta-reduction in *normal order*, defined in terms of 'substitute'.
 export reduct : (e : Term) -> Term
 reduct (App (Lam v t) s) = substitute v s t
 reduct (Lam v t) = Lam v (reduct t)
-reduct (App t u) = if isRedex t 
+reduct (App t u) = if isRedex t
                       then App (reduct t) u
                       else App t (reduct u)
 reduct term = term
+
+||| De Bruijn-indexed intermediate representation for comparing terms under the
+||| notion of alpha equivalence.
+data Indexed : Type where
+  ||| Bound variable (depth indexed)
+  Bound : Nat -> Indexed
+  ||| Free variable
+  Free  : String -> Indexed
+  ||| Application
+  IApp  : Indexed -> Indexed -> Indexed
+  ||| Lambda abstraction
+  ILam  : Indexed -> Indexed
+
+Show Indexed where
+  show (Bound n)  = "Bound " ++ show n
+  show (Free v)   = "Free "  ++ show v
+  show (IApp t u) = "IApp (" ++ show t ++ ") ("
+                             ++ show u ++ ")"
+  show (ILam t)   = "ILam (" ++ show t ++ ")"
+
+Eq Indexed where
+  (Bound m)  == (Bound n)  = m == n
+  (Free v)   == (Free w)   = v == w
+  (IApp t u) == (IApp v w) = t == v && u == w
+  (ILam t)   == (ILam u)   = t == u
+  _          == _          = False
+
+||| Translate the term to a canonical De Bruijn (depth-indexed) representation.
+toIndexed : Term -> Indexed
+toIndexed = toIx []
+where
+  toIx : List String -> Term -> Indexed
+  toIx bound (Var x)   = maybe (Free x) Bound (elemIndex x bound)
+  toIx bound (App t u) = IApp (toIx bound t) (toIx bound u)
+  toIx bound (Lam x t) = ILam (toIx (x :: bound) t)
+
+||| Return a boolean to indicate whether two terms are alpha equivalent; that
+||| is whether one can be converted into the other purely by renaming of bound
+||| variables.
+export alphaEq : Term -> Term -> Bool
+alphaEq t u = toIndexed t == toIndexed u
