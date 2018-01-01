@@ -111,6 +111,7 @@ substitute var expr = subst where
                           e' = alphaRename x x' e in
                       Lam x' (subst e')
                  else Lam x  (subst e)
+
 ||| Beta-reduction in *normal order*, defined in terms of 'substitute'.
 export reduct : (e : Term) -> Term
 reduct (App (Lam v t) s) = substitute v s t
