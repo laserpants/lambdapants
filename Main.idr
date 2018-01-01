@@ -64,7 +64,7 @@ where
 
 run : Nat -> Term -> IO ()
 run count term = do
-  when (count > 0) (putStr (decorate "0;97" "\x21d2" ++ " ")) -- Right arrow
+  when (count > 0) (putStr (decorate "0;32" "\x21d2" ++ " ")) -- Right arrow
   putStrLn (pretty term)
   when (isRedex term) continue 
 where
