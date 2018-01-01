@@ -64,14 +64,14 @@ where
 
 run : Nat -> Term -> IO ()
 run count term = do
-  when (count > 0) (putStr ((decorate "0;97" "\x21d2") ++ " ")) -- Right arrow
+  when (count > 0) (putStr (decorate "0;97" "\x21d2" ++ " ")) -- Right arrow
   putStrLn (pretty term)
   when (isRedex term) continue 
 where
   continue : IO ()
   continue = 
     if (count >= 150) 
-       then putStrLn ((decorate "1;91" "Terminated! ") ++ "Too many reductions.")
+       then putStrLn (decorate "1;91" "Terminated! " ++ "Too many reductions.")
        else run (succ count) (reduct term)
 
 runWithEnv : Term -> Environment -> IO ()
@@ -86,13 +86,13 @@ main : IO ()
 main = loop where
   loop : IO ()
   loop = do
-    line <- readline ((decorate "0;92" "\x03bb") ++ " ") -- Lambda sign
+    line <- readline (decorate "0;92" "\x03bb" ++ " ") -- Lambda sign
     case line of
          Just ""  => loop
          Just str => do 
            addHistory str
            case parse term str of 
                 Right t => runWithEnv t stdEnv 
-                Left  _ => putStrLn ((decorate "1;91" "Error! ") ++ "Not a valid term.")
+                Left  _ => putStrLn (decorate "1;91" "Error! " ++ "Not a valid term.")
            loop
-         Nothing => putStrLn "Bye!" 
+         Nothing => putStrLn ("\n" ++ decorate "0;37" "Bye!")
