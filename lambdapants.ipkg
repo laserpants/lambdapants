@@ -1,0 +1,7 @@
+package lambdapants
+
+modules = Term
+        , Readline
+        , Term.Parser
+
+opts = "-p lightyear"
