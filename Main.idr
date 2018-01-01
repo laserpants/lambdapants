@@ -6,7 +6,8 @@ import Term
 import Term.Parser
 
 decorate : String -> String -> String
-decorate code str = "\ESC[" ++ code ++ "m" ++ str ++ "\ESC[0m"
+decorate code str = str
+--decorate code str = "\001\ESC[0" ++ code ++ "m\002" ++ str ++ "\001\ESC[00m\002"
 
 export mkChurch : Nat -> Term
 mkChurch n = Lam "f" (Lam "x" nat) where
