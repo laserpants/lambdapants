@@ -6,29 +6,24 @@ module Readline
 %lib     C "readline"
 %link    C "foreign.o"
 
-readline_unsafe : String -> IO String
-readline_unsafe = foreign FFI_C "readline" (String -> IO String)
+readline_c : String -> IO String
+readline_c = foreign FFI_C "readline" (String -> IO String)
 
-export readline : String -> IO (Maybe String)
+export 
+readline : String -> IO (Maybe String)
 readline prompt = do 
-  text <- readline_unsafe prompt
+  text <- readline_c prompt
   null <- nullStr text
   pure (toMaybe (not null) text)
 
-export addHistory : String -> IO ()
+export 
+addHistory : String -> IO ()
 addHistory = foreign FFI_C "add_history" (String -> IO ())
 
-null : IO String
-null = foreign FFI_C "null" (IO String)
+export 
+readlineInit : IO ()
+readlineInit = foreign FFI_C "readline_init" (IO ())
 
-yyy : List String -> String -> Int -> String
-yyy dict text count = 
-  case index' (cast count) res of
-       Nothing => unsafePerformIO null 
-       Just v  => v
-where
-  res : List String
-  res = filter (\s => isPrefixOf s text) dict
-
-export xxx : IO ()
-xxx = foreign FFI_C "xxx" (CFnPtr (String -> Int -> String) -> IO ()) (MkCFnPtr (yyy []))
+export 
+addDictEntry : String -> IO ()
+addDictEntry = foreign FFI_C "add_dict_entry" (String -> IO ())
