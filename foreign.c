@@ -13,7 +13,7 @@ struct entry *dict    = NULL;
 struct entry *results = NULL;
 
 static char *
-completion_generator (const char *text, int state) 
+completion_generator (const char *text, int state)
 {
     char *str = NULL;
     static struct entry *current;
@@ -38,7 +38,7 @@ completion_generator (const char *text, int state)
             if (current->str == strstr (current->str, text))
             {
                 struct entry *new_entry = malloc (sizeof (struct entry));
-                new_entry->next = results; 
+                new_entry->next = results;
                 new_entry->str = strdup (current->str);
                 results = new_entry;
             }
@@ -57,7 +57,7 @@ completion_generator (const char *text, int state)
 }
 
 static char **
-completer (const char *text, int start, int end) 
+completer (const char *text, int start, int end)
 {
     rl_attempted_completion_over = 1;
 
@@ -70,7 +70,7 @@ readline_init ()
     rl_attempted_completion_function = completer;
 }
 
-void 
+void
 add_dict_entry (char *str)
 {
     struct entry *entry = malloc (sizeof (struct entry));
