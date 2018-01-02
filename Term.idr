@@ -157,7 +157,7 @@ where
   toIx bound (Lam x t) = ILam (toIx (x :: bound) t)
 
 ||| Return a boolean to indicate whether two terms are alpha equivalent; that
-||| is whether one can be converted into the other purely by renaming of bound
+||| is, whether one can be converted into the other purely by renaming of bound
 ||| variables.
 export total alphaEq : Term -> Term -> Bool
 alphaEq t u = toIndexed t == toIndexed u
