@@ -92,9 +92,16 @@ parseUnsafe input =
   case parse term input of
        Right term => term
 
+atLeast : Nat -> String -> Bool
+atLeast n x = length x >= n
+
+addMany : List String -> IO ()
+addMany entries = sequence_ (map addDictEntry entries)
+
 main : IO ()
 main = do
-  xxx
+  readlineInit
+  addMany (filter (atLeast 3) (map fst stdEnv))
   fancyPutStr "1;37" "lambdapants"
   putStrLn " \x03bb_\x03bb version 0.0.1"
   loop
