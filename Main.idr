@@ -11,6 +11,7 @@ fancyPutStr code str = do
   putStr str
   putStr "\ESC[0m"
 
+||| Return the Church encoded term corresponding to the provided number.
 export mkChurch : Nat -> Term
 mkChurch n = Lam "f" (Lam "x" nat) where
   nat : Term
