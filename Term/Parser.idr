@@ -9,11 +9,7 @@ valid : Parser Char
 valid = alphaNum <|> char '_'
 
 name : Parser String
-name = do
-  head <- valid
-  tail <- many valid
-  let name = head :: tail
-  pure (pack name)
+name = some valid >>= pure . pack 
 
 lambda : (body : Parser Term) -> Parser Term
 lambda term = do
