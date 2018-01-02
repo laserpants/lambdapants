@@ -108,7 +108,7 @@ parseUnsafe input =
        Right term => term
 
 atLeast : Nat -> String -> Bool
-atLeast n x = length x >= n
+atLeast n str = length str >= n
 
 addMany : List String -> IO ()
 addMany entries = sequence_ (map addDictEntry entries)
