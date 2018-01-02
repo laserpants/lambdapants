@@ -5,11 +5,8 @@ import Lightyear.Char
 import Lightyear.Strings
 import Term
 
-valid : Parser Char
-valid = alphaNum <|> char '_'
-
 name : Parser String
-name = some valid >>= pure . pack
+name = some (alphaNum <|> char '_') >>= pure . pack
 
 lambda : (body : Parser Term) -> Parser Term
 lambda term = do
