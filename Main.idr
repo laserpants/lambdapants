@@ -70,6 +70,19 @@ where
                   Left  _ => Nothing
                   Right t => Just (s, t)
 
+replaceNats : Term -> Term
+replaceNats = rnats [] where
+  rnats : List String -> Term -> Term
+  rnats bound (Var name) = 
+    if not (elem name bound) && all isDigit (unpack name) 
+       then let d = cast name in 
+                if d > 800 -- Numbers larger than 800 are not Church encoded
+                   then Var name 
+                   else mkChurch d
+       else (Var name)
+  rnats bound (App t u) = App (rnats bound t) (rnats bound u)
+  rnats bound (Lam v t) = Lam v (rnats (v :: bound) t)
+
 run : Nat -> Term -> IO ()
 run count term = do
   when (count > 0) (fancyPutStr "0;32" " \x21d2 ") -- Right arrow
@@ -85,7 +98,9 @@ where
        else run (succ count) (reduct term)
 
 runWithEnv : Term -> Environment -> IO ()
-runWithEnv term env = run 0 (foldr (uncurry substitute) term env)
+runWithEnv term env = 
+  let term' = replaceNats term 
+   in run 0 (foldr (uncurry substitute) term' env)
 
 partial parseUnsafe : String -> Term
 parseUnsafe input =
