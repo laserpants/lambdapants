@@ -148,7 +148,7 @@ Eq Indexed where
   _          == _          = False
 
 ||| Translate the term to a canonical De Bruijn (depth-indexed) representation.
-toIndexed : Term -> Indexed
+total toIndexed : Term -> Indexed
 toIndexed = toIx []
 where
   toIx : List String -> Term -> Indexed
@@ -159,5 +159,5 @@ where
 ||| Return a boolean to indicate whether two terms are alpha equivalent; that
 ||| is whether one can be converted into the other purely by renaming of bound
 ||| variables.
-export alphaEq : Term -> Term -> Bool
+export total alphaEq : Term -> Term -> Bool
 alphaEq t u = toIndexed t == toIndexed u
