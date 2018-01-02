@@ -72,7 +72,7 @@ where
 
 run : Nat -> Term -> IO ()
 run count term = do
-  when (count > 0) (fancyPutStr "0;32" "\x21d2 ") -- Right arrow
+  when (count > 0) (fancyPutStr "0;32" " \x21d2 ") -- Right arrow
   putStrLn (pretty term)
   when (isRedex term) continue
 where
@@ -94,6 +94,7 @@ parseUnsafe input =
 
 main : IO ()
 main = do
+  xxx
   fancyPutStr "1;37" "lambdapants"
   putStrLn " \x03bb_\x03bb version 0.0.1"
   loop
