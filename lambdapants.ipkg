@@ -1,7 +1,9 @@
 package lambdapants
 
-modules = Term
+modules = Environment
         , Readline
+        , Term
         , Term.Parser
+        , Main
 
 opts = "-p lightyear"
