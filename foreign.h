@@ -3,5 +3,6 @@
 
 void readline_init ();
 void add_dict_entry (char *str);
+char *readline_gets (char *prompt);
 
 #endif

@@ -6,24 +6,24 @@ module Readline
 %lib     C "readline"
 %link    C "foreign.o"
 
-readline_c : String -> IO String
-readline_c = foreign FFI_C "readline" (String -> IO String)
+readline_gets : String -> IO String
+readline_gets = foreign FFI_C "readline_gets" (String -> IO String)
 
-export 
+export
 readline : String -> IO (Maybe String)
-readline prompt = do 
-  text <- readline_c prompt
+readline prompt = do
+  text <- readline_gets prompt
   null <- nullStr text
   pure (toMaybe (not null) text)
 
-export 
+export
 addHistory : String -> IO ()
 addHistory = foreign FFI_C "add_history" (String -> IO ())
 
-export 
+export
 readlineInit : IO ()
 readlineInit = foreign FFI_C "readline_init" (IO ())
 
-export 
+export
 addDictEntry : String -> IO ()
 addDictEntry = foreign FFI_C "add_dict_entry" (String -> IO ())

@@ -9,8 +9,8 @@ struct entry
     struct entry *next;
 };
 
-struct entry *dict    = NULL;
-struct entry *results = NULL;
+static struct entry *dict    = NULL;
+static struct entry *results = NULL;
 
 static char *
 completion_generator (const char *text, int state)
@@ -77,4 +77,17 @@ add_dict_entry (char *str)
     entry->str = strdup (str);
     entry->next = dict;
     dict = entry;
+}
+
+static char *line = NULL;
+
+char *
+readline_gets (char *prompt)
+{
+    if (NULL != line)
+        free (line);
+
+    line = readline (prompt);
+
+    return line;
 }
