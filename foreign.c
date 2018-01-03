@@ -1,6 +1,9 @@
+#define _BSD_SOURCE
+
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <stdlib.h>
+#include <string.h>
 #include "foreign.h"
 
 struct entry

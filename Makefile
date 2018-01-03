@@ -3,7 +3,7 @@ CFLAGS = `idris --include`
 
 foreign.o: foreign.c foreign.h
 
-clean: .PHONY 
+clean: .PHONY
 	rm foreign.o
 
-.PHONY: 
+.PHONY:
