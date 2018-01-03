@@ -4,5 +4,6 @@
 - [x] Normal order evaluation
 - [x] Fancy ANSI-coded color output
 - [x] Church encoding of natural numbers
+- [x] Built-in SKI combinators and other standard terms (`plus`, `succ`, `fact`, etc.)
 - [ ] Other evaluation strategies
 - [ ] Eta reduction
