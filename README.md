@@ -4,6 +4,6 @@
 - [x] Normal order evaluation
 - [x] Fancy ANSI-coded color output :rainbow:
 - [x] Church encoding of natural numbers
-- [x] Built-in SKI combinators and other standard terms (`plus`, `succ`, `fact`, `Y`, etc.) :ski:
+- [x] Built-in SKI combinators and other standard terms (`plus`, `succ`, `true`, `false`, `pair`, `fact`, `Y`, etc.) :ski:
 - [ ] Other evaluation strategies
 - [ ] Eta reduction
