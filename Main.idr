@@ -113,6 +113,7 @@ main = do
   addMany (map fst env)
   ansiPutStr "1;37" "lambdapants"
   putStrLn " \x03bb_\x03bb version 0.0.1"
+  putStrLn "Type :h for help"
   loop env
 where
   exit : IO ()
