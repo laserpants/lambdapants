@@ -1,7 +1,5 @@
 module Main
 
---import Command
---import Command.Parser
 import Command
 import Command.Parser
 import Environment
