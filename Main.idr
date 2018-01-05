@@ -2,6 +2,8 @@ module Main
 
 --import Command
 --import Command.Parser
+import Command
+import Command.Parser
 import Environment
 import Lightyear.Strings
 import Readline
