@@ -8,7 +8,7 @@ public export data Command =
   Help |
   ||| `:env`               -- List environment or show a specific term
   Env (Maybe String) |
-  ||| `:alpha`             -- Perform alpha comparison of two terms
+  ||| `:aq`                -- Test two terms for alpha equality
   AlphaCompare Term Term |
   ||| `:eq`                -- descr.
   EvalCompare Term Term |
@@ -21,6 +21,8 @@ public export data Command =
   ||| `:delete` `:d`       -- Remove a term from the environment
   Delete String |
   ||| `:quit` `:q`         -- Exit
+  Limit Nat |
+  ||| `:limit`             -- Set maximum number of reductions
   Quit
 
 export
@@ -34,7 +36,7 @@ execute command env =
          putStrLn "Show env"
          pure env
        AlphaCompare a b => do
-         putStrLn (show (alphaEq a b))
+         putStrLn (toLower (show (alphaEq a b)))
          pure env
        EvalCompare a b => do
          putStrLn "Evaluate and compare"
@@ -49,5 +51,7 @@ execute command env =
          putStrLn ("Saving term '" ++ s ++ "' to environment")
          pure ((s, t) :: env)
        Delete s => do
+         pure env
+       Limit max => do
          pure env
        Quit => pure env
