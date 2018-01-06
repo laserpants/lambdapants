@@ -56,7 +56,8 @@ test = do
   putStrLn (show (isLeft (parse command "del wat")))
   putStrLn (show (parse command "d baz"      == Right (Right (Delete "baz"))))
   putStrLn (show (parse command "delete baz" == Right (Right (Delete "baz"))))
-  putStrLn (show (parse command "delete fez_baz" == Right (Right (Delete "fez_baz"))))
+  putStrLn (show (parse command "delete fez_baz" 
+                                             == Right (Right (Delete "fez_baz"))))
   putStrLn (show (parse command "d fez_baz"  == Right (Right (Delete "fez_baz"))))
 
   putStrLn (show (parse command "limit 3"    == Right (Right (Limit 3))))
@@ -84,4 +85,5 @@ test = do
   putStrLn (show (parse command "save id \\x.x"    == Right (Right (Save "id" (Lam "x" (Var "x"))))))
   putStrLn (show (parse command "save id    \\x.x" == Right (Right (Save "id" (Lam "x" (Var "x"))))))
   putStrLn (show (parse command "save x_x (A B)"   == Right (Right (Save "x_x" (App (Var "A") (Var "B"))))))
-  putStrLn (show (parse command "save  why (\\g.(\\x.g (x x)) (\\x.g (x x)))" == Right (Right (Save "why" (Lam "g" (App (Lam "x" (App (Var "g") (App (Var "x") (Var "x")))) (Lam "x" (App (Var "g") (App (Var "x") (Var "x"))))))))))
+  putStrLn (show (parse command "save  why (\\g.(\\x.g (x x)) (\\x.g (x x)))" 
+                                                   == Right (Right (Save "why" (Lam "g" (App (Lam "x" (App (Var "g") (App (Var "x") (Var "x")))) (Lam "x" (App (Var "g") (App (Var "x") (Var "x"))))))))))
