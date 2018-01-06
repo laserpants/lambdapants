@@ -7,14 +7,6 @@ import Lightyear.Strings
 import Term
 import Term.Parser
 
-nameArg : Parser String
-nameArg = pack <$> some (alphaNum <|> char '_')
-
-natArg : Parser Nat
-natArg = do
-  digits <- some (satisfy isDigit)
-  pure (cast (pack digits))
-
 termArg : Parser (Maybe Term)
 termArg = (spaces *> eof *> pure Nothing) <|> (some space *> map Just term)
 
@@ -35,7 +27,7 @@ where
   arg : Parser Command
   arg = do
     some space
-    term <- nameArg
+    term <- atom
     pure (Env (Just term))
 
 export
@@ -87,7 +79,7 @@ where
   usage = pure (Left "Usage is :s[ave] <symbol> <term>")
   args : Parser (Either String Command)
   args = do
-    symb <- nameArg
+    symb <- atom
     expr <- termArg
     case expr of
          Just term => pure (Right (Save symb term))
@@ -101,18 +93,18 @@ delete = do
   (spaces *> eof *> pure (Left "Usage is :d[elete] <symbol>")) <|> arg
 where
   arg : Parser (Either String Command)
-  arg = some space *> map (Right . Delete) nameArg
+  arg = some space *> map (Right . Delete) atom
 
 export
 limit : Parser (Either String Command)
 limit = do
   string "limit"
-  (spaces *> eof *> usage) <|> (some space *> arg)
+  (spaces *> eof *> usage) <|> (some space *> (arg <* eof) <|> usage)
 where
   usage : Parser (Either String Command)
   usage = pure (Left "Usage is :limit <number>")
   arg : Parser (Either String Command)
-  arg = map (Right . Limit) (natArg <* eof) <|> usage
+  arg = (Right . Limit . cast . pack) <$> some (satisfy isDigit)
 
 export
 quit : Parser Command
