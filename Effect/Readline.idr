@@ -10,12 +10,14 @@ data Readline : Effect where
   Read : String -> sig Readline (Maybe String)
   AddHistory   : String -> sig Readline ()
   AddDictEntry : String -> sig Readline ()
+  AddDictEntries : List String -> sig Readline ()
 
 implementation Handler Readline IO where
-    handle () Init             k = do readlineInit; k () ()
-    handle () (Read p)         k = do x <- readline p; k x ()
-    handle () (AddHistory l)   k = do addHistory l; k () ()
-    handle () (AddDictEntry e) k = do addDictEntry e; k () ()
+    handle () Init                k = do readlineInit; k () ()
+    handle () (Read p)            k = do x <- readline p; k x ()
+    handle () (AddHistory l)      k = do addHistory l; k () ()
+    handle () (AddDictEntry e)    k = do addDictEntry e; k () ()
+    handle () (AddDictEntries es) k = do sequence_ (map addDictEntry es); k () ()
 
 READLINE : EFFECT
 READLINE = MkEff () Readline
@@ -35,3 +37,7 @@ addHistory line = call (AddHistory line)
 export
 addDictEntry : String -> Eff () [READLINE]
 addDictEntry entry = call (AddDictEntry entry)
+
+export
+addDictEntries : List String -> Eff () [READLINE]
+addDictEntries entries = call (AddDictEntries entries)
