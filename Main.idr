@@ -88,9 +88,7 @@ where
   continue : IO ()
   continue =
     if (count >= 150)
-       then do
-         ansiPutStr "1;91" "Terminated! "
-         putStrLn "Too many reductions."
+       then ansiPutStr "0;91" "Terminated! Too many reductions.\n"
        else run (succ count) (reduct term)
 
 runWithEnv : Term -> Environment -> IO ()
@@ -121,30 +119,28 @@ where
   loop : Environment -> IO ()
   loop env = do
     line <- readline "\001\ESC[0;92m\002\x03bb\001\ESC[0m\002 " -- Lambda sign
-    case trim line of
+    case map trim line of
          Just ""  => loop env
+         Just ":" => loop env
          Just str => do
            addHistory str
            if ':' == strHead str
               then do
-                let cmd = strTail str
-                putStrLn ("You typed command " ++ cmd)
-                loop env
-                --case parse command cmd of
-                --     Right action => do
-                --       env' <- act action env
-                --       if Quit == action
-                --          then exit
-                --          else loop env'
-                --     Left _ => do
-                --       ansiPutStr "0;91"
-                --                   ("Unrecognized command: " ++ cmd ++ "\n")
-                --       loop env
+                case parse command (strTail str) of
+                     Right (Right action) => do
+                       env' <- execute action env
+                       if Quit == action
+                          then exit
+                          else loop env'
+                     Right (Left msg) => do
+                       putStrLn msg
+                       loop env
+                     otherwise => do
+                       ansiPutStr "0;91" ("Unrecognized command " ++ strTail str ++ "\n")
+                       loop env
               else do
                 case parse term str of
-                     Right t => runWithEnv t stdEnv
-                     otherwise => do
-                       ansiPutStr "1;91" "Error! "
-                       putStrLn "Not a valid term."
+                     Right t   => runWithEnv t stdEnv
+                     otherwise => ansiPutStr "0;91" "Not a valid term.\n"
                 loop env
          Nothing => putChar '\n' *> exit

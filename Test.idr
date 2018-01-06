@@ -20,6 +20,9 @@ test = do
   putStrLn (show (parse command "help"       == Right (Right Help)))
   putStrLn (show (isLeft (parse command "hp")))
   putStrLn (show (isLeft (parse command "helpo")))
+  putStrLn (show (parse command "? "         == Right (Right Help)))
+  putStrLn (show (parse command "?"          == Right (Right Help)))
+  putStrLn (show (isLeft (parse command "?elp")))
 
   putStrLn (show (parse command "aq X Y"     == Right (Right (AlphaEq (Var "X") (Var "Y")))))
   putStrLn (show (isLeft (parse command "aqX Y")))

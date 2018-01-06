@@ -4,7 +4,7 @@ import Environment
 import Term
 
 public export data Command =
-  ||| `:help` `:h`         -- Show help
+  ||| `:help` `:h` `:?`    -- Show help
   Help |
   ||| `:env`               -- List environment or show a specific term
   Env (Maybe String) |
@@ -61,7 +61,7 @@ execute command env =
          putStrLn "Look up a term"
          pure env
        Save s t => do
-         putStrLn ("Saving term '" ++ s ++ "' to environment")
+         putStrLn ("Saving term '" ++ s ++ "' to environment.")
          pure ((s, t) :: env)
        Delete s => do
          pure env

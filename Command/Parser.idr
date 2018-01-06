@@ -22,8 +22,7 @@ termArg = (spaces *> eof *> pure Nothing) <|> (some space *> map Just term)
 export
 help : Parser Command
 help = do
-  char 'h'
-  opt (string "elp")
+  char '?' <|> (char 'h' <* opt (string "elp"))
   spaces
   eof
   pure Help
