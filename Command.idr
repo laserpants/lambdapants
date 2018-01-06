@@ -9,9 +9,9 @@ public export data Command =
   ||| `:env`               -- List environment or show a specific term
   Env (Maybe String) |
   ||| `:aq`                -- Test two terms for alpha equality
-  AlphaCompare Term Term |
+  AlphaEq Term Term |
   ||| `:eq`                -- descr.
-  EvalCompare Term Term |
+  Eq Term Term |
   ||| `:reduce` `:r`       -- descr.
   Reduce Term |
   ||| `:lookup` `:l`       -- Look up a term in the environment
@@ -25,6 +25,19 @@ public export data Command =
   ||| `:limit`             -- Set maximum number of reductions
   Quit
 
+export Eq Command where
+  (Env a)       == (Env b)       = a == b
+  (AlphaEq s t) == (AlphaEq u v) = s == u && t == v
+  (Eq s t)      == (Eq u v)      = s == u && t == v
+  (Reduce s)    == (Reduce t)    = s == t
+  (Lookup s)    == (Lookup t)    = s == t
+  (Save s t)    == (Save u v)    = s == u && t == v
+  (Delete s)    == (Delete t)    = s == t
+  (Limit m)     == (Limit n)     = m == n
+  Help          == Help          = True
+  Quit          == Quit          = True
+  _             == _             = False
+
 export
 execute : Command -> Environment -> IO Environment
 execute command env =
@@ -35,10 +48,10 @@ execute command env =
        Env _ => do
          putStrLn "Show env"
          pure env
-       AlphaCompare a b => do
+       AlphaEq a b => do
          putStrLn (toLower (show (alphaEq a b)))
          pure env
-       EvalCompare a b => do
+       Eq a b => do
          putStrLn "Evaluate and compare"
          pure env
        Reduce t => do
