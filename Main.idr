@@ -2,6 +2,10 @@ module Main
 
 import Command
 import Command.Parser
+import Effects
+import Effect.Readline
+import Effect.State
+import Effect.StdIO
 import Environment
 import Lightyear.Strings
 import Readline
@@ -101,46 +105,52 @@ parseUnsafe input =
   case parse term input of
        Right term => term
 
-addMany : List String -> IO ()
-addMany entries = sequence_ (map addDictEntry entries)
+prog : Effects.SimpleEff.Eff () [STATE (), STDIO, READLINE]
+prog = do
+  readlineInit
+  let env = stdEnv
+  addDictEntries (map fst env)
+  pure ()
 
 main : IO ()
 main = do
-  readlineInit
-  let env = stdEnv
-  addMany (map fst env)
-  ansiPutStr "1;37" "lambdapants"
-  putStrLn " \x03bb_\x03bb version 0.0.1"
-  putStrLn "Type :h for help"
-  loop env
-where
-  exit : IO ()
-  exit = ansiPutStr "0;37" "Bye!\n"
-  loop : Environment -> IO ()
-  loop env = do
-    line <- readline "\001\ESC[0;92m\002\x03bb\001\ESC[0m\002 " -- Lambda sign
-    case map trim line of
-         Just ""  => loop env
-         Just ":" => loop env
-         Just str => do
-           addHistory str
-           if ':' == strHead str
-              then do
-                case parse command (strTail str) of
-                     Right (Right action) => do
-                       env' <- execute action env
-                       if Quit == action
-                          then exit
-                          else loop env'
-                     Right (Left msg) => do
-                       putStrLn msg
-                       loop env
-                     otherwise => do
-                       ansiPutStr "0;91" ("Unrecognized command " ++ strTail str ++ "\n")
-                       loop env
-              else do
-                case parse term str of
-                     Right t   => runWithEnv t stdEnv
-                     otherwise => ansiPutStr "0;91" "Not a valid term.\n"
-                loop env
-         Nothing => putChar '\n' *> exit
+  Effects.run prog
+
+--  readlineInit
+--  let env = stdEnv
+--  addMany (map fst env)
+--  ansiPutStr "1;37" "lambdapants"
+--  putStrLn " \x03bb_\x03bb version 0.0.1"
+--  putStrLn "Type :h for help"
+--  loop env
+--where
+--  exit : IO ()
+--  exit = ansiPutStr "0;37" "Bye!\n"
+--  loop : Environment -> IO ()
+--  loop env = do
+--    line <- readline "\001\ESC[0;92m\002\x03bb\001\ESC[0m\002 " -- Lambda sign
+--    case map trim line of
+--         Just ""  => loop env
+--         Just ":" => loop env
+--         Just str => do
+--           addHistory str
+--           if ':' == strHead str
+--              then do
+--                case parse command (strTail str) of
+--                     Right (Right action) => do
+--                       env' <- execute action env
+--                       if Quit == action
+--                          then exit
+--                          else loop env'
+--                     Right (Left msg) => do
+--                       putStrLn msg
+--                       loop env
+--                     otherwise => do
+--                       ansiPutStr "0;91" ("Unrecognized command " ++ strTail str ++ "\n")
+--                       loop env
+--              else do
+--                case parse term str of
+--                     Right t   => runWithEnv t stdEnv
+--                     otherwise => ansiPutStr "0;91" "Not a valid term.\n"
+--                loop env
+--         Nothing => putChar '\n' *> exit
