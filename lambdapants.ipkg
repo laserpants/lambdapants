@@ -9,4 +9,4 @@ modules = Command
         , Term.Parser
         , Main
 
-opts = "-p lightyear"
+opts = "-p lightyear -p effects"
