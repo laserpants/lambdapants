@@ -1,6 +1,6 @@
 # lambdapants
 
-- [x] Proper [readline](http://tiswww.cwru.edu/php/chet/readline/rltop.html) history and tab completion
+- [x] Proper [readline](http://tiswww.cwru.edu/php/chet/readline/rltop.html) history and tab completion (through FFI C bindings)
 - [x] Normal order evaluation
 - [ ] Other evaluation strategies
 - [x] Fancy ANSI-color coded output :rainbow:
