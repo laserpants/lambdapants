@@ -1,6 +1,9 @@
 package lambdapants
 
-modules = Environment
+modules = Command
+        , Command.Parser
+        , Effects.Readline
+        , Environment
         , Readline
         , Term
         , Term.Parser
