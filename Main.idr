@@ -121,7 +121,7 @@ where
   loop : Environment -> IO ()
   loop env = do
     line <- readline "\001\ESC[0;92m\002\x03bb\001\ESC[0m\002 " -- Lambda sign
-    case line of
+    case trim line of
          Just ""  => loop env
          Just str => do
            addHistory str
