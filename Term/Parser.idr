@@ -16,7 +16,8 @@ lambda term = do
   body <- term
   pure (Lam var body)
 
-export term : Parser Term
+export
+term : Parser Term
 term = do
   terms <- some (spaces *> expr)
   pure (foldl1 App terms)
