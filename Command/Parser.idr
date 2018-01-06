@@ -27,15 +27,13 @@ where
   arg : Parser Command
   arg = do
     some space
-    term <- atom
-    pure (Env (Just term))
+    pure (Env (Just !atom))
 
 export
 aq : Parser (Either String Command)
 aq = do
   string "aq"
-  t <- termArg
-  case t of
+  case !termArg of
        Just (App s t) => pure (Right (AlphaEq s t))
        otherwise      => pure (Left "Usage is :aq <term> <term>")
 
@@ -43,8 +41,7 @@ export
 eq : Parser (Either String Command)
 eq = do
   string "eq"
-  t <- termArg
-  case t of
+  case !termArg of
        Just (App s t) => pure (Right (Eq s t))
        otherwise      => pure (Left "Usage is :eq <term> <term>")
 
@@ -53,8 +50,7 @@ reduce : Parser (Either String Command)
 reduce = do
   char 'r'
   opt (string "educe")
-  t <- termArg
-  case t of
+  case !termArg of
        Just t    => pure (Right (Reduce t))
        otherwise => pure (Left "Usage is :r[educe] <term>")
 
@@ -63,8 +59,7 @@ lookup : Parser (Either String Command)
 lookup = do
   char 'l'
   opt (string "ookup")
-  t <- termArg
-  case t of
+  case !termArg of
        Just t    => pure (Right (Lookup t))
        otherwise => pure (Left "Usage is :l[ookup] <term>")
 
@@ -80,8 +75,7 @@ where
   args : Parser (Either String Command)
   args = do
     symb <- atom
-    expr <- termArg
-    case expr of
+    case !termArg of
          Just term => pure (Right (Save symb term))
          otherwise => usage
 
