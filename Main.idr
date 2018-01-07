@@ -10,13 +10,13 @@ import Lambdapants.Environment
 import Lambdapants.Term
 import Lambdapants.Term.Parser
 import Lightyear.Strings
-import Readline
+--import Readline
 
-ansiPutStr : String -> String -> IO ()
-ansiPutStr code str = do
-  putStr ("\ESC[" ++ code ++ "m")
-  putStr str
-  putStr "\ESC[0m"
+--ansiPutStr : String -> String -> IO ()
+--ansiPutStr code str = do
+--  putStr ("\ESC[" ++ code ++ "m")
+--  putStr str
+--  putStr "\ESC[0m"
 
 ansiPut : String -> String -> Eff () [STDIO]
 ansiPut code str = do
@@ -121,24 +121,19 @@ loop = do
        Just ""  => loop
        Just ":" => loop
        Just str => do
-         Effects.Readline.addHistory str
+         addHistory str
          if ':' == strHead str
             then do
-              case parse command (strTail str) of
-                   Right (Right action) => do
+              case parseCmd (strTail str) of
+                   Left err => do
+                     putStrLn err
+                     loop
+                   Right action => do
                      execute action
-                     if Quit == action
-                        then exit
-                        else loop
-                   Right (Left msg) => do
-                     putStrLn msg
-                     loop
-                   otherwise => do
-                     ansiPut "0;91" ("Unrecognized command " ++ strTail str ++ "\n")
-                     loop
+                     if Quit == action then exit else loop
             else do
               case parse term str of
-                   Right t   => runWithEnv t stdEnv
+                   Right t => runWithEnv t stdEnv
                    otherwise => do
                      ansiPut "0;91" "Not a valid term."
                      putStrLn " The format is <term> := <var> | \\<var>.<term> | (<term> <term>)"
@@ -148,7 +143,7 @@ loop = do
 prog : Eff () [STATE Repl, STDIO, READLINE]
 prog = do
   readlineInit
-  (ReplState env) <- get 
+  (ReplState env) <- get
   addDictEntries (map fst env)
   ansiPut "1;37" "lambdapants"
   putStrLn " \x03bb_\x03bb version 0.0.1"
