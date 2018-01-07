@@ -7,117 +7,79 @@ import Lightyear
 import Lightyear.Char
 import Lightyear.Strings
 
-termArg : Parser (Maybe Term)
-termArg = (spaces *> eof *> pure Nothing) <|> (some space *> map Just term)
+symbolArg : Parser String
+symbolArg = atom
 
-export
-help : Parser Command
-help = do
-  char '?' <|> (char 'h' <* opt (string "elp"))
+termArg : Parser Term
+termArg = (char '(' *> term <* char ')') <|>| map Var atom
+
+natArg : Parser Nat
+natArg = (cast . pack) <$> some (satisfy isDigit)
+
+data ArgT
+  = Arg0 Command
+  | Arg1 (a -> Command)           (Parser a)
+  | Arg2 (a -> b -> Command)      (Parser a) (Parser b)
+  | Arg3 (a -> b -> c -> Command) (Parser a) (Parser b) (Parser c)
+
+commands : List (String, (ArgT, String))
+commands =
+  [ ("q"       , (Arg0 Quit                      , ""))
+  , ("quit"    , (Arg0 Quit                      , ""))
+  , ("limit"   , (Arg1 Limit natArg              , "<number>"))
+  , ("d"       , (Arg1 Delete symbolArg          , "<symbol>"))
+  , ("delete"  , (Arg1 Delete symbolArg          , "<symbol>"))
+  , ("s"       , (Arg2 Save symbolArg termArg    , "<symbol> <term>"))
+  , ("save"    , (Arg2 Save symbolArg termArg    , "<symbol> <term>"))
+  , ("l"       , (Arg1 Lookup termArg            , "<term>"))
+  , ("lookup"  , (Arg1 Lookup termArg            , "<term>"))
+  , ("r"       , (Arg1 Reduce termArg            , "<term>"))
+  , ("reduce"  , (Arg1 Reduce termArg            , "<term>"))
+  , ("eq"      , (Arg2 Eq termArg termArg        , "<term> <term>"))
+  , ("aq"      , (Arg2 AlphaEq termArg termArg   , "<term> <term>"))
+  , ("env"     , (Arg1 Env (opt symbolArg)       , "[<symbol>]"))
+  , ("?"       , (Arg0 Help                      , ""))
+  , ("h"       , (Arg0 Help                      , ""))
+  , ("help"    , (Arg0 Help                      , "")) ]
+
+args : ArgT -> Parser Command
+args (Arg0 constr) = pure constr
+args (Arg1 constr arg1) = do
+  a <- arg1
   spaces
   eof
-  pure Help
-
-export
-env : Parser Command
-env = do
-  string "env"
-  (spaces *> eof *> pure (Env Nothing)) <|> arg
-where
-  arg : Parser Command
-  arg = do
-    some space
-    pure (Env (Just !atom))
-
-export
-aq : Parser (Either String Command)
-aq = do
-  string "aq"
-  case !termArg of
-       Just (App s t) => pure (Right (AlphaEq s t))
-       otherwise      => pure (Left "Usage is :aq <term> <term>")
-
-export
-eq : Parser (Either String Command)
-eq = do
-  string "eq"
-  case !termArg of
-       Just (App s t) => pure (Right (Eq s t))
-       otherwise      => pure (Left "Usage is :eq <term> <term>")
-
-export
-reduce : Parser (Either String Command)
-reduce = do
-  char 'r'
-  opt (string "educe")
-  case !termArg of
-       Just t    => pure (Right (Reduce t))
-       otherwise => pure (Left "Usage is :r[educe] <term>")
-
-export
-lookup : Parser (Either String Command)
-lookup = do
-  char 'l'
-  opt (string "ookup")
-  case !termArg of
-       Just t    => pure (Right (Lookup t))
-       otherwise => pure (Left "Usage is :l[ookup] <term>")
-
-export
-save : Parser (Either String Command)
-save = do
-  char 's'
-  opt (string "ave")
-  (spaces *> eof *> usage) <|> (some space *> (args <|> usage))
-where
-  usage : Parser (Either String Command)
-  usage = pure (Left "Usage is :s[ave] <symbol> <term>")
-  args : Parser (Either String Command)
-  args = do
-    symb <- atom
-    case !termArg of
-         Just term => pure (Right (Save symb term))
-         otherwise => usage
-
-export
-delete : Parser (Either String Command)
-delete = do
-  char 'd'
-  opt (string "elete")
-  (spaces *> eof *> pure (Left "Usage is :d[elete] <symbol>")) <|> arg
-where
-  arg : Parser (Either String Command)
-  arg = some space *> map (Right . Delete) atom
-
-export
-limit : Parser (Either String Command)
-limit = do
-  string "limit"
-  (spaces *> eof *> usage) <|> (some space *> (arg <* eof) <|> usage)
-where
-  usage : Parser (Either String Command)
-  usage = pure (Left "Usage is :limit <number>")
-  arg : Parser (Either String Command)
-  arg = (Right . Limit . cast . pack) <$> some (satisfy isDigit)
-
-export
-quit : Parser Command
-quit = do
-  char 'q'
-  opt (string "uit")
+  pure (constr a)
+args (Arg2 constr arg1 arg2) = do
+  a <- arg1
+  some space
+  b <- arg2
   spaces
   eof
-  pure Quit
+  pure (constr a b)
+args (Arg3 constr arg1 arg2 arg3) = do
+  a <- arg1
+  some space
+  b <- arg2
+  some space
+  c <- arg3
+  spaces
+  eof
+  pure (constr a b c)
+
+parseArgs : String -> String -> Either String Command
+parseArgs command argstr =
+  maybe unknown (uncurry compile) (lookup command commands) where
+  compile : ArgT -> String -> Either String Command
+  compile argt hint = do
+    case parse (args argt) argstr of
+         Left _  => Left ("Usage is :" ++ command ++ " " ++ hint)
+         right   => right
+  unknown : Either String Command
+  unknown = Left ("\ESC[0;91mUnrecognized command: " ++ command ++ "\ESC[0m")
 
 export
-command : Parser (Either String Command)
-command = map Right help
-      <|> map Right env
-      <|> aq
-      <|> eq
-      <|> reduce
-      <|> lookup
-      <|> save
-      <|> delete
-      <|> limit
-      <|> map Right quit
+parseCmd : String -> Either String Command
+parseCmd str = do
+  case words str of
+       (w :: ws) => parseArgs w (unwords ws)
+       otherwise => Left "error"
