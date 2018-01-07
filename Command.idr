@@ -1,5 +1,8 @@
 module Command
 
+import Effect.State
+import Effect.StdIO
+import Effects
 import Environment
 import Term
 
@@ -39,32 +42,26 @@ export Eq Command where
   _             == _             = False
 
 export
-execute : Command -> Environment -> IO Environment
-execute command env =
+execute : Command -> Eff () [STATE (), STDIO]
+execute command =
   case command of
        Help => do
          putStrLn "Show help"
-         pure env
        Env _ => do
          putStrLn "Show env"
-         pure env
        AlphaEq a b => do
          putStrLn (toLower (show (alphaEq a b)))
-         pure env
        Eq a b => do
          putStrLn "Evaluate and compare"
-         pure env
        Reduce t => do
          putStrLn "Reduce a term"
-         pure env
        Lookup t => do
          putStrLn "Look up a term"
-         pure env
        Save s t => do
          putStrLn ("Saving term '" ++ s ++ "' to environment.")
-         pure ((s, t) :: env)
+         --pure ((s, t) :: env)
        Delete s => do
-         pure env
+         pure ()
        Limit max => do
-         pure env
-       Quit => pure env
+         pure ()
+       Quit => pure ()

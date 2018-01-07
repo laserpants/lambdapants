@@ -2,10 +2,10 @@ module Main
 
 import Command
 import Command.Parser
-import Effects
 import Effect.Readline
 import Effect.State
 import Effect.StdIO
+import Effects
 import Environment
 import Lightyear.Strings
 import Readline
@@ -18,8 +18,14 @@ ansiPutStr code str = do
   putStr str
   putStr "\ESC[0m"
 
+ansiPut : String -> String -> Eff () [STDIO]
+ansiPut code str = do
+  putStr ("\ESC[" ++ code ++ "m")
+  putStr str
+  putStr "\ESC[0m"
+
 ||| Return the Church encoded term corresponding to the provided number.
-export churchEncoded : Nat -> Term
+churchEncoded : Nat -> Term
 churchEncoded n = Lam "f" (Lam "x" nat) where
   nat : Term
   nat = foldr apply (Var "x") (take n (repeat (Term.App (Var "f"))))
@@ -83,19 +89,19 @@ replaceNats = rnats [] where
   rnats bound (App t u) = App (rnats bound t) (rnats bound u)
   rnats bound (Lam v t) = Lam v (rnats (v :: bound) t)
 
-run : Nat -> Term -> IO ()
+run : Nat -> Term -> Eff () [STDIO]
 run count term = do
-  when (count > 0) (ansiPutStr "0;32" " \x21d2 ") -- Right arrow
+  when (count > 0) (ansiPut "0;32" " \x21d2 ") -- Right arrow
   putStrLn (pretty term)
   when (isRedex term) continue
 where
-  continue : IO ()
+  continue : Eff () [STDIO]
   continue =
     if (count >= 150)
-       then ansiPutStr "0;91" "Terminated! Too many reductions.\n"
+       then ansiPut "0;91" "Terminated! Too many reductions.\n"
        else run (succ count) (reduct term)
 
-runWithEnv : Term -> Environment -> IO ()
+runWithEnv : Term -> Environment -> Eff () [STDIO]
 runWithEnv term env =
   let term' = replaceNats term
    in run 0 (foldr (uncurry substitute) term' env)
@@ -105,52 +111,47 @@ parseUnsafe input =
   case parse term input of
        Right term => term
 
-prog : Effects.SimpleEff.Eff () [STATE (), STDIO, READLINE]
+exit : Eff () [STDIO]
+exit = ansiPut "0;37" "Bye!\n"
+
+loop : Eff () [STATE (), STDIO, READLINE]
+loop = do
+  line <- readline "\001\ESC[0;96m\002\x03bb\001\ESC[0m\002 " -- Lambda sign
+  case map trim line of
+       Just ""  => loop
+       Just ":" => loop
+       Just str => do
+         Effects.Readline.addHistory str
+         if ':' == strHead str
+            then do
+              case parse command (strTail str) of
+                   Right (Right action) => do
+                     execute action
+                     if Quit == action
+                        then exit
+                        else loop
+                   Right (Left msg) => do
+                     putStrLn msg
+                     loop
+                   otherwise => do
+                     ansiPut "0;91" ("Unrecognized command " ++ strTail str ++ "\n")
+                     loop
+            else do
+              case parse term str of
+                   Right t   => runWithEnv t stdEnv
+                   otherwise => ansiPut "0;91" "Not a valid term.\n"
+              loop
+       Nothing => putChar '\n' *> exit
+
+prog : Eff () [STATE (), STDIO, READLINE]
 prog = do
   readlineInit
   let env = stdEnv
   addDictEntries (map fst env)
-  pure ()
-
-main : IO ()
-main = do
-  ansiPutStr "1;37" "lambdapants"
+  ansiPut "1;37" "lambdapants"
   putStrLn " \x03bb_\x03bb version 0.0.1"
   putStrLn "Type :h for help"
-  Effects.run prog
+  loop
 
---  readlineInit
---  let env = stdEnv
---  addMany (map fst env)
---  loop env
---where
---  exit : IO ()
---  exit = ansiPutStr "0;37" "Bye!\n"
---  loop : Environment -> IO ()
---  loop env = do
---    line <- readline "\001\ESC[0;92m\002\x03bb\001\ESC[0m\002 " -- Lambda sign
---    case map trim line of
---         Just ""  => loop env
---         Just ":" => loop env
---         Just str => do
---           addHistory str
---           if ':' == strHead str
---              then do
---                case parse command (strTail str) of
---                     Right (Right action) => do
---                       env' <- execute action env
---                       if Quit == action
---                          then exit
---                          else loop env'
---                     Right (Left msg) => do
---                       putStrLn msg
---                       loop env
---                     otherwise => do
---                       ansiPutStr "0;91" ("Unrecognized command " ++ strTail str ++ "\n")
---                       loop env
---              else do
---                case parse term str of
---                     Right t   => runWithEnv t stdEnv
---                     otherwise => ansiPutStr "0;91" "Not a valid term.\n"
---                loop env
---         Nothing => putChar '\n' *> exit
+main : IO ()
+main = Effects.run prog
