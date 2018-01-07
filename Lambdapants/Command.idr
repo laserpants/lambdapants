@@ -44,6 +44,11 @@ export Eq Command where
 public export
 data Repl = ReplState Environment
 
+saveTerm : String -> Term -> Eff () [STATE Repl]
+saveTerm symbol term = ?save
+--  (ReplState env) <- get
+--  put R(symbol, term) :: env
+
 export
 execute : Command -> Eff () [STATE Repl, STDIO]
 execute command =
@@ -62,6 +67,7 @@ execute command =
          putStrLn "Look up a term"
        Save s t => do
          putStrLn ("Saving term '" ++ s ++ "' to environment.")
+         saveTerm s t
          --pure ((s, t) :: env)
        Delete s => do
          pure ()
