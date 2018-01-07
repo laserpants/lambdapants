@@ -41,8 +41,11 @@ export Eq Command where
   Quit          == Quit          = True
   _             == _             = False
 
+public export
+data Repl = ReplState Environment
+
 export
-execute : Command -> Eff () [STATE (), STDIO]
+execute : Command -> Eff () [STATE Repl, STDIO]
 execute command =
   case command of
        Help => do

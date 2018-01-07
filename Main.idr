@@ -114,7 +114,7 @@ parseUnsafe input =
 exit : Eff () [STDIO]
 exit = ansiPut "0;37" "Bye!\n"
 
-loop : Eff () [STATE (), STDIO, READLINE]
+loop : Eff () [STATE Repl, STDIO, READLINE]
 loop = do
   line <- readline "\001\ESC[0;96m\002\x03bb\001\ESC[0m\002 " -- Lambda sign
   case map trim line of
@@ -139,14 +139,16 @@ loop = do
             else do
               case parse term str of
                    Right t   => runWithEnv t stdEnv
-                   otherwise => ansiPut "0;91" "Not a valid term.\n"
+                   otherwise => do
+                     ansiPut "0;91" "Not a valid term."
+                     putStrLn " The format is <term> := <var> | \\<var>.<term> | (<term> <term>)"
               loop
        Nothing => putChar '\n' *> exit
 
-prog : Eff () [STATE (), STDIO, READLINE]
+prog : Eff () [STATE Repl, STDIO, READLINE]
 prog = do
   readlineInit
-  let env = stdEnv
+  (ReplState env) <- get 
   addDictEntries (map fst env)
   ansiPut "1;37" "lambdapants"
   putStrLn " \x03bb_\x03bb version 0.0.1"
@@ -154,4 +156,4 @@ prog = do
   loop
 
 main : IO ()
-main = Effects.run prog
+main = Effects.runInit [ReplState stdEnv, (), ()] prog
