@@ -3,8 +3,11 @@ module Lambdapants.Command
 import Effect.State
 import Effect.StdIO
 import Effects
-import Lambdapants.Environment
 import Lambdapants.Term
+
+public export
+Environment : Type
+Environment = List (String, Term)
 
 public export data Command =
   ||| `:help` `:h` `:?`    -- Show help
@@ -42,35 +45,38 @@ export Eq Command where
   _             == _             = False
 
 public export
-data Repl = ReplState Environment
+record Repl where
+  constructor ReplState
+  dict : Environment
+
+--Lens : Type -> Type -> Type -> Type -> Type
+--Lens s t a b = (f : Type -> Type) -> Functor f -> (a -> f b) -> s -> f t
+--first : Lens (a, c) (b, c) a b
+--first F inst f (a, b) = map (x => (x, b)) (f a)
 
 saveTerm : String -> Term -> Eff () [STATE Repl]
-saveTerm symbol term = ?save
---  (ReplState env) <- get
---  put R(symbol, term) :: env
+saveTerm symbol term = update (\st => set_dict ((symbol, term) :: dict st) st) 
 
 export
 execute : Command -> Eff () [STATE Repl, STDIO]
-execute command =
-  case command of
-       Help => do
-         putStrLn "Show help"
-       Env _ => do
-         putStrLn "Show env"
-       AlphaEq a b => do
-         putStrLn (toLower (show (alphaEq a b)))
-       Eq a b => do
-         putStrLn "Evaluate and compare"
-       Reduce t => do
-         putStrLn "Reduce a term"
-       Lookup t => do
-         putStrLn "Look up a term"
-       Save s t => do
-         putStrLn ("Saving term '" ++ s ++ "' to environment.")
-         saveTerm s t
-         --pure ((s, t) :: env)
-       Delete s => do
-         pure ()
-       Limit max => do
-         pure ()
-       Quit => pure ()
+execute Help = do 
+  putStrLn "Show help"
+execute (Env _) = do 
+  putStrLn "Show env"
+execute (AlphaEq a b) = do 
+  putStrLn (toLower (show (alphaEq a b)))
+execute (Eq a b) = do 
+  putStrLn "Evaluate and compare"
+execute (Reduce t) = do 
+  putStrLn "Reduce a term"
+execute (Lookup t) = do 
+  putStrLn "Look up a term"
+execute (Save s t) = do 
+  putStrLn ("Saving term '" ++ s ++ "' to environment.") 
+  saveTerm s t
+execute (Delete s) = do 
+  pure ()
+execute (Limit max) = do 
+  pure ()
+execute Quit = do
+  pure ()

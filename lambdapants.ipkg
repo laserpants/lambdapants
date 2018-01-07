@@ -3,7 +3,6 @@ package lambdapants
 modules = Effects.Readline
         , Lambdapants.Command
         , Lambdapants.Command.Parser
-        , Lambdapants.Environment
         , Lambdapants.Readline
         , Lambdapants.Term
         , Lambdapants.Term.Parser
