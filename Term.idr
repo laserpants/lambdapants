@@ -39,7 +39,8 @@ mutual
   app term = pretty term
 
   ||| Translate the given term to a pretty-printed string.
-  export pretty : Term -> String
+  export
+  pretty : Term -> String
   pretty term =
     case term of
          Lam _ _ => "(" ++ lam term ++ ")"
@@ -47,24 +48,28 @@ mutual
          Var var => var
 
 ||| Return a list of all variables which appear free in the term 't'.
-export total freeVars : Term -> List String
+export total
+freeVars : Term -> List String
 freeVars (Var v)   = [v]
 freeVars (Lam v t) = delete v (freeVars t)
 freeVars (App t u) = freeVars t `union` freeVars u
 
 ||| Return a boolean to indicate whether the variable 'v' appears free in the
 ||| term 't'.
-total isFreeIn : (v : String) -> (t : Term) -> Bool
+total
+isFreeIn : (v : String) -> (t : Term) -> Bool
 isFreeIn var term = elem var (freeVars term)
 
 ||| Return all variables (free and bound) which appears in the term 't'.
-export total vars : Term -> List String
+export total
+vars : Term -> List String
 vars (Var v)   = [v]
 vars (Lam v t) = v :: vars t
 vars (App t u) = vars t `union` vars u
 
 ||| Return a boolean to indicate whether the given term is reducible.
-export total isRedex : Term -> Bool
+export total
+isRedex : Term -> Bool
 isRedex (App (Lam _ _) _) = True
 isRedex (App e1 e2)       = isRedex e1 || isRedex e2
 isRedex (Lam _ e1)        = isRedex e1
@@ -99,7 +104,8 @@ alphaRename from to term =
 ||| @n a variable to substitute for
 ||| @e the term that the variable 'n' will be replaced with
 ||| @s the original term
-export substitute : (n : String) -> (e : Term) -> (s : Term) -> Term
+export
+substitute : (n : String) -> (e : Term) -> (s : Term) -> Term
 substitute var expr = subst where
   subst : Term -> Term
   subst (Var v)     = if var == v then expr else Var v
@@ -113,7 +119,8 @@ substitute var expr = subst where
                  else Lam x  (subst e)
 
 ||| Beta-reduction in *normal order*, defined in terms of 'substitute'.
-export reduct : (e : Term) -> Term
+export
+reduct : (e : Term) -> Term
 reduct (App (Lam v t) s) = substitute v s t
 reduct (Lam v t) = Lam v (reduct t)
 reduct (App t u) = if isRedex t
@@ -148,7 +155,8 @@ Eq Indexed where
   _          == _          = False
 
 ||| Translate the term to a canonical De Bruijn (depth-indexed) representation.
-total toIndexed : Term -> Indexed
+total
+toIndexed : Term -> Indexed
 toIndexed = toIx []
 where
   toIx : List String -> Term -> Indexed
@@ -159,5 +167,6 @@ where
 ||| Return a boolean to indicate whether two terms are alpha equivalent; that
 ||| is, whether one can be converted into the other purely by renaming of bound
 ||| variables.
-export total alphaEq : Term -> Term -> Bool
+export total
+alphaEq : Term -> Term -> Bool
 alphaEq t u = toIndexed t == toIndexed u
