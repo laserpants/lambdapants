@@ -1,9 +1,9 @@
-module Term.Parser
+module Lambdapants.Term.Parser
 
+import Lambdapants.Term
 import Lightyear
 import Lightyear.Char
 import Lightyear.Strings
-import Term
 
 export
 atom : Parser String

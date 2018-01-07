@@ -1,12 +1,12 @@
 package lambdapants
 
-modules = Command
-        , Command.Parser
-        , Effects.Readline
-        , Environment
-        , Readline
-        , Term
-        , Term.Parser
+modules = Effects.Readline
+        , Lambdapants.Command
+        , Lambdapants.Command.Parser
+        , Lambdapants.Environment
+        , Lambdapants.Readline
+        , Lambdapants.Term
+        , Lambdapants.Term.Parser
         , Main
 
 opts = "-p lightyear -p effects"

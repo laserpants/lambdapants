@@ -1,10 +1,10 @@
-module Command
+module Lambdapants.Command
 
 import Effect.State
 import Effect.StdIO
 import Effects
-import Environment
-import Term
+import Lambdapants.Environment
+import Lambdapants.Term
 
 public export data Command =
   ||| `:help` `:h` `:?`    -- Show help

@@ -1,4 +1,4 @@
-module Term
+module Lambdapants.Term
 
 ||| In the lambda calculus, a term is one of three things:
 |||   * A variable is a term;
@@ -8,7 +8,8 @@ module Term
 ||| Nothing else is a term. Application is left-associative, so the term
 ||| `(s t u)` is the same as `(s t) u`. One often omits outermost parentheses.
 ||| In abstractions, the body extends as far to the right as possible.
-public export data Term : Type where
+public export 
+data Term : Type where
   ||| Variable
   Var : String -> Term
   ||| Lambda abstraction
@@ -16,13 +17,15 @@ public export data Term : Type where
   ||| Application
   App : Term -> Term -> Term
 
-export Eq Term where
+export 
+Eq Term where
   (Var a)   == (Var b)   = a == b
   (Lam x t) == (Lam y u) = x == y && t == u
   (App t u) == (App v w) = t == v && u == w
   _         == _         = False
 
-export Show Term where
+export 
+Show Term where
   show (Var v)   = "Var "  ++ show v
   show (App t u) = "App (" ++ show t ++ ") ("
                            ++ show u ++ ")"

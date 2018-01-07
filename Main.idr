@@ -1,16 +1,16 @@
 module Main
 
-import Command
-import Command.Parser
 import Effect.Readline
 import Effect.State
 import Effect.StdIO
 import Effects
-import Environment
+import Lambdapants.Command
+import Lambdapants.Command.Parser
+import Lambdapants.Environment
+import Lambdapants.Term
+import Lambdapants.Term.Parser
 import Lightyear.Strings
 import Readline
-import Term
-import Term.Parser
 
 ansiPutStr : String -> String -> IO ()
 ansiPutStr code str = do

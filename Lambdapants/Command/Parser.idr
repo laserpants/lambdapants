@@ -1,11 +1,11 @@
-module Command.Parser
+module Lambdapants.Command.Parser
 
-import Command
+import Lambdapants.Command
+import Lambdapants.Term
+import Lambdapants.Term.Parser
 import Lightyear
 import Lightyear.Char
 import Lightyear.Strings
-import Term
-import Term.Parser
 
 termArg : Parser (Maybe Term)
 termArg = (spaces *> eof *> pure Nothing) <|> (some space *> map Just term)
