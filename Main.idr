@@ -6,17 +6,9 @@ import Effect.StdIO
 import Effects
 import Lambdapants.Command
 import Lambdapants.Command.Parser
-import Lambdapants.Environment
 import Lambdapants.Term
 import Lambdapants.Term.Parser
 import Lightyear.Strings
---import Readline
-
---ansiPutStr : String -> String -> IO ()
---ansiPutStr code str = do
---  putStr ("\ESC[" ++ code ++ "m")
---  putStr str
---  putStr "\ESC[0m"
 
 ansiPut : String -> String -> Eff () [STDIO]
 ansiPut code str = do
@@ -89,8 +81,8 @@ replaceNats = rnats [] where
   rnats bound (App t u) = App (rnats bound t) (rnats bound u)
   rnats bound (Lam v t) = Lam v (rnats (v :: bound) t)
 
-run : Nat -> Term -> Eff () [STDIO]
-run count term = do
+runx : Nat -> Term -> Eff () [STDIO]
+runx count term = do
   when (count > 0) (ansiPut "0;32" " \x21d2 ") -- Right arrow
   putStrLn (pretty term)
   when (isRedex term) continue
@@ -99,12 +91,13 @@ where
   continue =
     if (count >= 150)
        then ansiPut "0;91" "Terminated! Too many reductions.\n"
-       else run (succ count) (reduce term)
+       else runx (succ count) (reduce term)
 
-runWithEnv : Term -> Environment -> Eff () [STDIO]
-runWithEnv term env =
-  let term' = replaceNats term
-   in run 0 (foldr (uncurry substitute) term' env)
+runWithEnv : Term -> Eff () [STATE Repl, STDIO]
+runWithEnv term = runx 0 (term' (dict !get))
+where
+  term' : Environment -> Term
+  term' = foldr (uncurry substitute) (replaceNats term)
 
 partial parseUnsafe : String -> Term
 parseUnsafe input =
@@ -133,7 +126,7 @@ loop = do
                      if Quit == action then exit else loop
             else do
               case parse term str of
-                   Right t => runWithEnv t stdEnv
+                   Right t => runWithEnv t
                    otherwise => do
                      ansiPut "0;91" "Not a valid term.\n"
                      putStrLn "Format: <term> := <var> | \\<var>.<term> | (<term> <term>)"
