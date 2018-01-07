@@ -99,7 +99,7 @@ where
   continue =
     if (count >= 150)
        then ansiPut "0;91" "Terminated! Too many reductions.\n"
-       else run (succ count) (reduct term)
+       else run (succ count) (reduce term)
 
 runWithEnv : Term -> Environment -> Eff () [STDIO]
 runWithEnv term env =

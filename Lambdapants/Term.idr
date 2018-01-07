@@ -124,13 +124,13 @@ substitute var expr = subst where
 ||| Apply beta reduction to the expression *e* to derive a new term. This
 ||| function is defined in terms of *substitute*.
 export
-reduct : (e : Term) -> Term
-reduct (App (Lam v t) s) = substitute v s t
-reduct (Lam v t) = Lam v (reduct t)
-reduct (App t u) = if isRedex t
-                      then App (reduct t) u
-                      else App t (reduct u)
-reduct term = term
+reduce : (e : Term) -> Term
+reduce (App (Lam v t) s) = substitute v s t
+reduce (Lam v t) = Lam v (reduce t)
+reduce (App t u) = if isRedex t
+                      then App (reduce t) u
+                      else App t (reduce u)
+reduce term = term
 
 ||| De Bruijn-indexed intermediate representation for comparing terms under the
 ||| notion of alpha equivalence.
