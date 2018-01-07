@@ -9,6 +9,7 @@ export
 atom : Parser String
 atom = pack <$> some (alphaNum <|> char '_')
 
+export
 lambda : (body : Parser Term) -> Parser Term
 lambda term = do
   char '\\'
