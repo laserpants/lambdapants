@@ -38,7 +38,7 @@ mutual
   app (App t u) = app t ++ " " ++ pretty u
   app term = pretty term
 
-  ||| Translate the given term to a pretty-printed string.
+  ||| Translate the given term to a pretty-printed string representation.
   export
   pretty : Term -> String
   pretty term =
@@ -47,27 +47,27 @@ mutual
          App _ _ => "(" ++ app term ++ ")"
          Var var => var
 
-||| Return a list of all variables which appear free in the term 't'.
+||| Return a list of all variables which appear free in the term *t*.
 export total
-freeVars : Term -> List String
+freeVars : (t : Term) -> List String
 freeVars (Var v)   = [v]
 freeVars (Lam v t) = delete v (freeVars t)
 freeVars (App t u) = freeVars t `union` freeVars u
 
-||| Return a boolean to indicate whether the variable 'v' appears free in the
-||| term 't'.
+||| Return a boolean to indicate whether the variable *v* appears free in the
+||| term *t*.
 total
 isFreeIn : (v : String) -> (t : Term) -> Bool
 isFreeIn var term = elem var (freeVars term)
 
-||| Return all variables (free and bound) which appears in the term 't'.
+||| Return all variables (free and bound) which appears in the term *t*.
 export total
-vars : Term -> List String
+vars : (t : Term) -> List String
 vars (Var v)   = [v]
 vars (Lam v t) = v :: vars t
 vars (App t u) = vars t `union` vars u
 
-||| Return a boolean to indicate whether the given term is reducible.
+||| Return a boolean to indicate whether the term is reducible.
 export total
 isRedex : Term -> Bool
 isRedex (App (Lam _ _) _) = True
@@ -101,9 +101,9 @@ alphaRename from to term =
        (Lam x e)   => Lam (if x == from then to else x) (alphaRename from to e)
 
 ||| Perform the substitution `s[ n := e ]`.
-||| @n a variable to substitute for
-||| @e the term that the variable 'n' will be replaced with
-||| @s the original term
+||| @n - a variable to substitute for
+||| @e - the term that the variable *n* will be replaced with
+||| @s - the original term
 export
 substitute : (n : String) -> (e : Term) -> (s : Term) -> Term
 substitute var expr = subst where
@@ -118,7 +118,8 @@ substitute var expr = subst where
                       Lam x' (subst e')
                  else Lam x  (subst e)
 
-||| Beta-reduction in *normal order*, defined in terms of 'substitute'.
+||| Apply beta reduction to the expression *e* to derive a new term. This
+||| function is defined in terms of *substitute*.
 export
 reduct : (e : Term) -> Term
 reduct (App (Lam v t) s) = substitute v s t
@@ -154,9 +155,9 @@ Eq Indexed where
   (ILam t)   == (ILam u)   = t == u
   _          == _          = False
 
-||| Translate the term to a canonical De Bruijn (depth-indexed) form.
+||| Translate the term *t* to a canonical De Bruijn (depth-indexed) form.
 total
-toIndexed : Term -> Indexed
+toIndexed : (t : Term) -> Indexed
 toIndexed = toIx []
 where
   toIx : List String -> Term -> Indexed
