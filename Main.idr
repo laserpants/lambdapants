@@ -135,8 +135,8 @@ loop = do
               case parse term str of
                    Right t => runWithEnv t stdEnv
                    otherwise => do
-                     ansiPut "0;91" "Not a valid term."
-                     putStrLn " The format is <term> := <var> | \\<var>.<term> | (<term> <term>)"
+                     ansiPut "0;91" "Not a valid term.\n"
+                     putStrLn "Format: <term> := <var> | \\<var>.<term> | (<term> <term>)"
               loop
        Nothing => putChar '\n' *> exit
 
