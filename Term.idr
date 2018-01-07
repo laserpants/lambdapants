@@ -154,7 +154,7 @@ Eq Indexed where
   (ILam t)   == (ILam u)   = t == u
   _          == _          = False
 
-||| Translate the term to a canonical De Bruijn (depth-indexed) representation.
+||| Translate the term to a canonical De Bruijn (depth-indexed) form.
 total
 toIndexed : Term -> Indexed
 toIndexed = toIx []
