@@ -81,16 +81,17 @@ replaceNats = rnats [] where
   rnats bound (App t u) = App (rnats bound t) (rnats bound u)
   rnats bound (Lam v t) = Lam v (rnats (v :: bound) t)
 
-runx : Nat -> Term -> Eff () [STDIO]
+runx : Nat -> Term -> Eff () [STATE Repl, STDIO]
 runx count term = do
   when (count > 0) (ansiPut "0;32" " \x21d2 ") -- Right arrow
   putStrLn (pretty term)
   when (isRedex term) continue
 where
-  continue : Eff () [STDIO]
-  continue =
-    if (count >= 150)
-       then ansiPut "0;91" "Terminated! Too many reductions.\n"
+  continue : Eff () [STATE Repl, STDIO]
+  continue = do
+    let n = limit !get
+    if (count >= n)
+       then ansiPut "0;91" ("Terminated! Too many (" ++ show n ++ ") reductions.\n")
        else runx (succ count) (reduce term)
 
 runWithEnv : Term -> Eff () [STATE Repl, STDIO]
@@ -136,7 +137,7 @@ loop = do
 prog : Eff () [STATE Repl, STDIO, READLINE]
 prog = do
   readlineInit
-  (ReplState env) <- get
+  (ReplState env _) <- get
   addDictEntries (map fst env)
   ansiPut "1;37" "lambdapants"
   putStrLn " \x03bb_\x03bb version 0.0.1"
@@ -144,4 +145,4 @@ prog = do
   loop
 
 main : IO ()
-main = Effects.runInit [ReplState stdEnv, (), ()] prog
+main = Effects.runInit [ReplState stdEnv 150, (), ()] prog

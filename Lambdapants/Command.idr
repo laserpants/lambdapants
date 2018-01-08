@@ -1,5 +1,6 @@
 module Lambdapants.Command
 
+import Effect.Readline
 import Effect.State
 import Effect.StdIO
 import Effects
@@ -18,7 +19,8 @@ public export data Command =
   AlphaEq Term Term |
   ||| `:eq`                -- descr.
   Eq Term Term |
-  ||| `:reduce` `:r`       -- descr.
+  ||| `:reduce` `:r`       -- Apply one beta reduction step to the expression
+  |||                         to derive a new term
   Reduce Term |
   ||| `:lookup` `:l`       -- Look up a term in the environment
   Lookup Term |
@@ -48,6 +50,7 @@ public export
 record Repl where
   constructor ReplState
   dict : Environment
+  limit : Nat
 
 --Lens : Type -> Type -> Type -> Type -> Type
 --Lens s t a b = (f : Type -> Type) -> Functor f -> (a -> f b) -> s -> f t
@@ -55,28 +58,27 @@ record Repl where
 --first F inst f (a, b) = map (x => (x, b)) (f a)
 
 saveTerm : String -> Term -> Eff () [STATE Repl]
-saveTerm symbol term = update (\st => set_dict ((symbol, term) :: dict st) st) 
+saveTerm symbol term = update (\st => set_dict ((symbol, term) :: dict st) st)
+
+updateLimit : Nat -> Eff () [STATE Repl]
+updateLimit lim = update (\st => set_limit lim st)
 
 export
-execute : Command -> Eff () [STATE Repl, STDIO]
-execute Help = do 
-  putStrLn "Show help"
-execute (Env _) = do 
-  putStrLn "Show env"
-execute (AlphaEq a b) = do 
-  putStrLn (toLower (show (alphaEq a b)))
-execute (Eq a b) = do 
-  putStrLn "Evaluate and compare"
-execute (Reduce t) = do 
-  putStrLn "Reduce a term"
-execute (Lookup t) = do 
-  putStrLn "Look up a term"
-execute (Save s t) = do 
-  putStrLn ("Saving term '" ++ s ++ "' to environment.") 
+execute : Command -> Eff () [STATE Repl, STDIO, READLINE]
+execute Help = putStrLn "Show help"
+execute (Env _) = putStrLn "Show env"
+execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
+execute (Eq a b) = putStrLn "Evaluate and compare"
+execute (Reduce t) = putStrLn "Reduce a term"
+execute (Lookup t) = putStrLn "Look up a term"
+execute (Save s t) = do
+  putStr "Saving term "
+  putStr ("\ESC[0;93m")
+  putStr s
+  putStr "\ESC[0m"
+  putStrLn " to environment."
   saveTerm s t
-execute (Delete s) = do 
-  pure ()
-execute (Limit max) = do 
-  pure ()
-execute Quit = do
-  pure ()
+  addHistory s
+execute (Delete s) = pure ()
+execute (Limit max) = updateLimit max
+execute Quit = pure ()

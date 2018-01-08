@@ -68,14 +68,15 @@ args (Arg3 constr arg1 arg2 arg3) = do
 
 parseArgs : String -> String -> Either String Command
 parseArgs command argstr =
-  maybe unknown (uncurry compile) (lookup command commands) where
+  maybe (Left unknown) (uncurry compile) (lookup command commands)
+where
   compile : ArgT -> String -> Either String Command
   compile argt hint = do
     case parse (args argt) argstr of
          Left _  => Left ("Usage is :" ++ command ++ " " ++ hint)
          right   => right
-  unknown : Either String Command
-  unknown = Left ("\ESC[0;91mUnrecognized command: " ++ command ++ "\ESC[0m")
+  unknown : String
+  unknown = "\ESC[0;91mUnrecognized command: " ++ command ++ "\ESC[0m"
 
 export
 parseCmd : String -> Either String Command
