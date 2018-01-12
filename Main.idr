@@ -99,8 +99,7 @@ runWithEnv : Term -> Eff () [STATE Repl, STDIO]
 runWithEnv term = run_ 0 (term' (dict !get))
 where
   term' : Environment -> Term
-  term' _ = term
-  --term' = foldr (uncurry substitute) (replaceNats term)
+  term' = foldr (uncurry substitute) (replaceNats term)
 
 partial parseUnsafe : String -> Term
 parseUnsafe input =
