@@ -12,7 +12,7 @@ data Readline : Effect where
   AddDictEntry : String -> sig Readline ()
   AddDictEntries : List String -> sig Readline ()
 
-Handler Readline IO where 
+Handler Readline IO where
   handle () Init                k = do readlineInit; k () ()
   handle () (Read p)            k = do x <- readline p; k x ()
   handle () (AddHistory l)      k = do addHistory l; k () ()
