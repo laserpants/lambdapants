@@ -18,6 +18,10 @@ Eq Strategy where
   Applicative == Applicative = True
   _           == _           = False
 
+Show Strategy where
+  show Normal      = "Normal"
+  show Applicative = "Applicative"
+
 public export
 data Command =
   ||| `:help` `:h` `:?`    -- Show help
@@ -40,7 +44,7 @@ data Command =
   ||| `:quit` `:q`         -- Exit
   Limit Nat |
   ||| `:limit`             -- Set maximum number of reductions
-  Eval Strategy |
+  Eval (Maybe Strategy) |
   ||| `:eval`              -- Set evaluation strategy
   Quit
 
@@ -75,7 +79,11 @@ saveTerm : String -> Term -> Eff () [STATE Repl]
 saveTerm symbol term = update (\st => set_dict ((symbol, term) :: dict st) st)
 
 updateLimit : Nat -> Eff () [STATE Repl]
-updateLimit lim = update (\st => set_limit lim st)
+updateLimit lim = update (set_limit lim)
+
+setEvalOrder : Maybe Strategy -> Eff () [STATE Repl]
+setEvalOrder Nothing      = pure ()
+setEvalOrder (Just strat) = update (set_eval strat)
 
 export
 execute : Command -> Eff () [STATE Repl, STDIO, READLINE]
@@ -95,5 +103,8 @@ execute (Save s t) = do
   addHistory s
 execute (Delete s) = pure ()
 execute (Limit max) = updateLimit max
-execute (Eval strategy) = putStrLn "Set evaluation strategy"
+execute (Eval arg) = do
+  setEvalOrder arg
+  let strategy = eval !get
+  putStrLn ("Evaluation is in " ++ toLower (show strategy) ++ " order.")
 execute Quit = pure ()
