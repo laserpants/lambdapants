@@ -6,6 +6,7 @@ modules = Effects.Readline
         , Lambdapants.Readline
         , Lambdapants.Term
         , Lambdapants.Term.Parser
+        , Lambdapants.Term.Reduction
         , Main
 
 opts = "-p lightyear -p effects"
