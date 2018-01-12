@@ -8,7 +8,7 @@ module Lambdapants.Term
 ||| Nothing else is a term. Application is left-associative, so the term
 ||| `(s t u)` is the same as `(s t) u`. One often omits outermost parentheses.
 ||| In abstractions, the body extends as far to the right as possible.
-public export 
+public export
 data Term : Type where
   ||| Variable
   Var : String -> Term
@@ -17,14 +17,14 @@ data Term : Type where
   ||| Application
   App : Term -> Term -> Term
 
-export 
+export
 Eq Term where
   (Var a)   == (Var b)   = a == b
   (Lam x t) == (Lam y u) = x == y && t == u
   (App t u) == (App v w) = t == v && u == w
   _         == _         = False
 
-export 
+export
 Show Term where
   show (Var v)   = "Var "  ++ show v
   show (App t u) = "App (" ++ show t ++ ") ("
@@ -127,8 +127,8 @@ vars (App t u) = vars t `union` vars u
 --whnf : Term -> Term
 --whnf (Var x)     = Var x
 --whnf (Lam x e)   = Lam x e
---whnf (App e1 e2) = 
---  case whnf e1 of 
+--whnf (App e1 e2) =
+--  case whnf e1 of
 --       (Lam x e) => whnf (substitute x e2 e)
 --       e1'       => App e1' e2
 --
@@ -143,7 +143,7 @@ vars (App t u) = vars t `union` vars u
 --nor (Var x)     = Var x
 --nor (Lam x e)   = Lam x (nor e)
 --nor (App e1 e2) =
---  case whnf e1 of 
+--  case whnf e1 of
 --       (Lam x e) => substitute x e2 e
 --       --e1'       => App (nor e1') (nor e2)
 --       e1'       => App e1' e2
@@ -151,30 +151,30 @@ vars (App t u) = vars t `union` vars u
 --appl : Term -> Term
 --appl = ?app
 
--- ||| Apply beta reduction in normal order to the expression *e* to derive a new 
+-- ||| Apply beta reduction in normal order to the expression *e* to derive a new
 -- ||| term. This function is defined in terms of *substitute*.
 -- export
 -- reduce_norm : (e : Term) -> Term
 -- reduce_norm (App (Lam v t) s) = substitute v s t
 -- reduce_norm (Lam v t) = Lam v (reduce_norm t)
--- reduce_norm (App t u) = if isRedex t 
---                            then App (reduce_norm t) u 
+-- reduce_norm (App t u) = if isRedex t
+--                            then App (reduce_norm t) u
 --                            else App t (reduce_norm u)
 -- reduce_norm term = term
--- 
+--
 -- ||| Apply beta reduction in applicative order (I think).
 -- export
 -- reduce_appl : (e : Term) -> Term
--- reduce_appl (App (Lam v t) s) = if isRedex s 
+-- reduce_appl (App (Lam v t) s) = if isRedex s
 --                                    then App (Lam v t) (reduce_appl s)
 --                                    else substitute v s t
--- reduce_appl (App t u) = if isRedex u 
+-- reduce_appl (App t u) = if isRedex u
 --                            then App t (reduce_appl u)
 --                            else App (reduce_appl t) u
 -- reduce_appl (Lam v t) = Lam v (reduce_appl t)
 -- reduce_appl term = term
 
-||| De Bruijn-indexed intermediate representation for more convenient alpha 
+||| De Bruijn-indexed intermediate representation for more convenient alpha
 ||| equivalence comparison of terms.
 data Indexed : Type where
   ||| Bound variable (depth indexed)
