@@ -75,7 +75,7 @@ replaceNats = rnats [] where
   rnats bound (Var name) =
     if not (elem name bound) && all isDigit (unpack name)
        then let d = cast name in
-                if d > 800 -- Numbers larger than 800 are not Church encoded
+                if d > 800 -- Treat numbers larger than 800 as literals
                    then Var name
                    else churchEncoded d
        else (Var name)
