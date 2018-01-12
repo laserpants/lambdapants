@@ -11,6 +11,14 @@ Environment : Type
 Environment = List (String, Term)
 
 public export
+data Strategy = Normal | Applicative
+
+Eq Strategy where
+  Normal      == Normal      = True
+  Applicative == Applicative = True
+  _           == _           = False
+
+public export
 data Command =
   ||| `:help` `:h` `:?`    -- Show help
   Help |
@@ -32,9 +40,8 @@ data Command =
   ||| `:quit` `:q`         -- Exit
   Limit Nat |
   ||| `:limit`             -- Set maximum number of reductions
-
-  -- Set evaluation order
-
+  Eval Strategy |
+  ||| `:eval`              -- Set evaluation strategy
   Quit
 
 export
@@ -47,6 +54,7 @@ Eq Command where
   (Save s t)    == (Save u v)    = s == u && t == v
   (Delete s)    == (Delete t)    = s == t
   (Limit m)     == (Limit n)     = m == n
+  (Eval s)      == (Eval t)      = s == t
   Help          == Help          = True
   Quit          == Quit          = True
   _             == _             = False
@@ -56,6 +64,7 @@ record Repl where
   constructor ReplState
   dict  : Environment
   limit : Nat
+  eval  : Strategy
 
 --Lens : Type -> Type -> Type -> Type -> Type
 --Lens s t a b = (f : Type -> Type) -> Functor f -> (a -> f b) -> s -> f t
@@ -86,4 +95,5 @@ execute (Save s t) = do
   addHistory s
 execute (Delete s) = pure ()
 execute (Limit max) = updateLimit max
+execute (Eval strategy) = pure ()
 execute Quit = pure ()
