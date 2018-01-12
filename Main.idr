@@ -145,6 +145,8 @@ prog = do
   readlineInit
   (ReplState env _ _) <- get
   addDictEntries (map fst env)
+  addDictEntry "normal"
+  addDictEntry "applicative"
   ansiPut "1;37" "lambdapants"
   putStrLn " \x03bb_\x03bb version 0.0.1"
   putStrLn "Type :h for help"
