@@ -82,10 +82,6 @@ replaceNats = rnats [] where
   rnats bound (App t u) = App (rnats bound t) (rnats bound u)
   rnats bound (Lam v t) = Lam v (rnats (v :: bound) t)
 
-evaluate : Strategy -> Term -> Term
-evaluate Normal      = nor
-evaluate Applicative = aor
-
 run_ : Nat -> Term -> Eff () [STATE Repl, STDIO]
 run_ count term = do
   when (count > 0) (ansiPut "0;32" " \x21d2 ") -- Right arrow
