@@ -3,11 +3,71 @@ module Test
 import Lambdapants.Command
 import Lambdapants.Command.Parser
 import Lambdapants.Term
+import Lambdapants.Term.Parser
+import Lambdapants.Term.Reduction
 import Lightyear
 import Lightyear.Strings
 
+partial parseUnsafe_ : String -> Term
+parseUnsafe_ input =
+  case parse term input of
+       Right t => t
+
 export test : IO ()
 test = do
+
+  -- Test reductions
+
+  let t0 = parseUnsafe_ "(\\x.\\y.x y) y"
+  putStrLn (show (parseUnsafe_ "\\z.y z" `alphaEq` nor t0))
+
+  let t1 = parseUnsafe_ "(\\a.\\b.a) c ((\\d.e) d)"
+  let t2 = parseUnsafe_ "(\\b.c) ((\\d.e) d)"
+  putStrLn (show (t2 `alphaEq` nor t1))
+  let t3 = parseUnsafe_ "c"
+  putStrLn (show (t3 `alphaEq` nor t2))
+  --
+  let t4 = parseUnsafe_ "(\\a.\\b.a) c ((\\d.e) d)"
+  let t5 = parseUnsafe_ "(\\a.\\b.a) c e"
+  putStrLn (show (t5 `alphaEq` aor t4))
+  let t6 = parseUnsafe_ "(\\b.c) e"
+  putStrLn (show (t6 `alphaEq` aor t5))
+  putStrLn (show (t3 `alphaEq` aor t6))
+  --
+  let t7 = parseUnsafe_ "(\\x.a)((\\x.x x)(\\y.y y))"
+  putStrLn (show (parseUnsafe_ "a" `alphaEq` nor t7))
+  --
+  let t8 = parseUnsafe_ "(\\x.a)((\\y.y y)(\\y.y y))"
+  putStrLn (show (t8 `alphaEq` aor t7))
+  --
+  let t9 = parseUnsafe_ "((\\a.x) ((\\a.a a)(\\a.((\\b.a b) a))))"
+  putStrLn (show (Var "x" `alphaEq` nor t9))
+  --
+  let t10 = parseUnsafe_ "(\\x.\\i0.y) c (\\z.(\\w.(\\b.(\\a.a) c) z) f)"
+  let t11 = parseUnsafe_ "(\\x.y) (\\z.(\\w.(\\b.(\\a.a) c) z) f)"
+  putStrLn (show (t11 `alphaEq` nor t10))
+  putStrLn (show (Var "y" `alphaEq` nor t11))
+  --
+  let t12 = parseUnsafe_ "((\\a.x) ((\\a.a a) (\\a.a a)))"
+  putStrLn (show (t12 `alphaEq` aor t9))
+  putStrLn (show (t12 `alphaEq` aor (aor t9)))
+  --
+  let t13 = parseUnsafe_ "((\\x.\\x.y) c (\\z.(\\w.(\\b.(\\a.a) c) z) f))"
+  let t14 = parseUnsafe_ "(\\x.\\i0.y) c (\\z.(\\b.(\\a.a) c) z)"
+  putStrLn (show (t14 `alphaEq` aor t13))
+  let t15 = parseUnsafe_ "(\\x.\\i0.y) c (\\z.(\\a.a) c)"
+  putStrLn (show (t15 `alphaEq` aor t14))
+  let t16 = parseUnsafe_ "(\\x.\\i0.y) c (\\z.c)"
+  putStrLn (show (t16 `alphaEq` aor t15))
+  let t17 = parseUnsafe_ "(\\x.y) (\\z.c)"
+  putStrLn (show (t17 `alphaEq` aor t16))
+  let t18 = parseUnsafe_ "y"
+  putStrLn (show (t18 `alphaEq` aor t17))
+  --
+
+
+  -- Test repl expressions
+
   putStrLn (show (parseCmd "env"        == Right (Env Nothing)))
   putStrLn (show (parseCmd "env  "      == Right (Env Nothing)))
   putStrLn (show (isLeft (parseCmd "envxx")))
