@@ -48,7 +48,8 @@ commands =
   , ("eval"    , (Arg1 Eval (opt stratArg)       , "[normal | applicative]"))
   , ("?"       , (Arg0 Help                      , ""))
   , ("h"       , (Arg0 Help                      , ""))
-  , ("help"    , (Arg0 Help                      , "")) ]
+  , ("help"    , (Arg0 Help                      , ""))
+  ]
 
 args : ArgT -> Parser Command
 args (Arg0 constr) = pure constr
