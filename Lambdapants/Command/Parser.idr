@@ -16,6 +16,13 @@ termArg = (char '(' *> term <* char ')') <|>| map Var atom
 natArg : Parser Nat
 natArg = (cast . pack) <$> some (satisfy isDigit)
 
+stratArg : Parser Strategy
+stratArg = norm <|> appl where
+  norm : Parser Strategy
+  norm = string "normal" *> pure Normal
+  appl : Parser Strategy
+  appl = string "applicative" *> pure Applicative
+
 data ArgT
   = Arg0 Command
   | Arg1 (a -> Command)           (Parser a)
@@ -38,6 +45,7 @@ commands =
   , ("eq"      , (Arg2 Eq termArg termArg        , "<term> <term>"))
   , ("aq"      , (Arg2 AlphaEq termArg termArg   , "<term> <term>"))
   , ("env"     , (Arg1 Env (opt symbolArg)       , "[<symbol>]"))
+  , ("eval"    , (Arg1 Eval stratArg             , "normal | applicative"))
   , ("?"       , (Arg0 Help                      , ""))
   , ("h"       , (Arg0 Help                      , ""))
   , ("help"    , (Arg0 Help                      , "")) ]

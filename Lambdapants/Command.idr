@@ -95,5 +95,5 @@ execute (Save s t) = do
   addHistory s
 execute (Delete s) = pure ()
 execute (Limit max) = updateLimit max
-execute (Eval strategy) = pure ()
+execute (Eval strategy) = putStrLn "Set evaluation strategy"
 execute Quit = pure ()
