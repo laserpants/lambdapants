@@ -75,8 +75,28 @@ record Repl where
 --first : Lens (a, c) (b, c) a b
 --first F inst f (a, b) = map (x => (x, b)) (f a)
 
-saveTerm : String -> Term -> Eff () [STATE Repl]
-saveTerm symbol term = update (\st => set_dict ((symbol, term) :: dict st) st)
+highlight : String -> String
+highlight s = "\ESC[0;92m" ++ s ++ "\ESC[0m"
+
+saveTerm : String -> Term -> Eff () [STATE Repl, STDIO, READLINE]
+saveTerm symbol term = do
+  let store = dict !get
+  case lookup symbol store of
+       Just found => do
+         if found `alphaEq` term
+            then do
+              putStr "The term "
+              putStr (highlight symbol)
+              putStrLn " already exists."
+            else do
+              answer <- readline "Replace existing entry (y[es] to confirm)? "
+              when (Just "y" == answer || Just "yes" == answer) save
+       Nothing => save
+where
+  save : Eff () [STATE Repl, STDIO, READLINE]
+  save = do
+    update (set_dict ((symbol, term) :: dict !get))
+    putStrLn (highlight "Saved!")
 
 updateLimit : Nat -> Eff () [STATE Repl]
 updateLimit lim = update (set_limit lim)
@@ -94,11 +114,11 @@ execute (Eq a b) = putStrLn "Evaluate and compare"
 execute (Reduce t) = putStrLn "Reduce a term"
 execute (Lookup t) = putStrLn "Look up a term"
 execute (Save s t) = do
-  putStr "Saving term "
-  putStr ("\ESC[0;93m")
-  putStr s
-  putStr "\ESC[0m"
-  putStrLn " to environment."
+  --putStr "Saving term "
+  --putStr ("\ESC[0;93m")
+  --putStr s
+  --putStr "\ESC[0m"
+  --putStrLn " to environment."
   saveTerm s t
   addHistory s
 execute (Delete s) = pure ()
