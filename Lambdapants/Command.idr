@@ -10,7 +10,8 @@ public export
 Environment : Type
 Environment = List (String, Term)
 
-public export data Command =
+public export
+data Command =
   ||| `:help` `:h` `:?`    -- Show help
   Help |
   ||| `:env`               -- List environment or show a specific term
@@ -31,9 +32,13 @@ public export data Command =
   ||| `:quit` `:q`         -- Exit
   Limit Nat |
   ||| `:limit`             -- Set maximum number of reductions
+
+  -- Set evaluation order
+
   Quit
 
-export Eq Command where
+export
+Eq Command where
   (Env a)       == (Env b)       = a == b
   (AlphaEq s t) == (AlphaEq u v) = s == u && t == v
   (Eq s t)      == (Eq u v)      = s == u && t == v
@@ -49,7 +54,7 @@ export Eq Command where
 public export
 record Repl where
   constructor ReplState
-  dict : Environment
+  dict  : Environment
   limit : Nat
 
 --Lens : Type -> Type -> Type -> Type -> Type
