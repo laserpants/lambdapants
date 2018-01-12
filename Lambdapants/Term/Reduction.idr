@@ -1,6 +1,7 @@
 module Lambdapants.Term.Reduction
 
 import Lambdapants.Term
+import Lambdapants.Command
 
 %default total
 
@@ -74,3 +75,8 @@ aor (App e1 e2) with (normal e2)
   | True  = case e1 of
                  Lam x e   => substitute x e2 e
                  otherwise => App (aor e1) e2
+
+export
+evaluate : Strategy -> Term -> Term
+evaluate Normal      = nor
+evaluate Applicative = aor
