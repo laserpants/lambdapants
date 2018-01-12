@@ -8,6 +8,7 @@ import Lambdapants.Command
 import Lambdapants.Command.Parser
 import Lambdapants.Term
 import Lambdapants.Term.Parser
+import Lambdapants.Term.Reduction
 import Lightyear.Strings
 
 ansiPut : String -> String -> Eff () [STDIO]
@@ -81,24 +82,25 @@ replaceNats = rnats [] where
   rnats bound (App t u) = App (rnats bound t) (rnats bound u)
   rnats bound (Lam v t) = Lam v (rnats (v :: bound) t)
 
-runx : Nat -> Term -> Eff () [STATE Repl, STDIO]
-runx count term = do
+run_ : Nat -> Term -> Eff () [STATE Repl, STDIO]
+run_ count term = do
   when (count > 0) (ansiPut "0;32" " \x21d2 ") -- Right arrow
   putStrLn (pretty term)
-  when (isRedex term) continue
+  when (not (normal term)) continue
 where
   continue : Eff () [STATE Repl, STDIO]
   continue = do
     let n = limit !get
     if (count >= n)
        then ansiPut "0;91" ("Terminated! Too many (" ++ show n ++ ") reductions.\n")
-       else runx (succ count) (reduce term)
+       else run_ (succ count) (nor term)
 
 runWithEnv : Term -> Eff () [STATE Repl, STDIO]
-runWithEnv term = runx 0 (term' (dict !get))
+runWithEnv term = run_ 0 (term' (dict !get))
 where
   term' : Environment -> Term
-  term' = foldr (uncurry substitute) (replaceNats term)
+  term' _ = term
+  --term' = foldr (uncurry substitute) (replaceNats term)
 
 partial parseUnsafe : String -> Term
 parseUnsafe input =
