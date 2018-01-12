@@ -82,6 +82,10 @@ replaceNats = rnats [] where
   rnats bound (App t u) = App (rnats bound t) (rnats bound u)
   rnats bound (Lam v t) = Lam v (rnats (v :: bound) t)
 
+evaluate : Strategy -> Term -> Term
+evaluate Normal      = nor
+evaluate Applicative = aor
+
 run_ : Nat -> Term -> Eff () [STATE Repl, STDIO]
 run_ count term = do
   when (count > 0) (ansiPut "0;32" " \x21d2 ") -- Right arrow
@@ -91,9 +95,10 @@ where
   continue : Eff () [STATE Repl, STDIO]
   continue = do
     let n = limit !get
+    let strategy = eval !get
     if (count >= n)
        then ansiPut "0;91" ("Terminated! Too many (" ++ show n ++ ") reductions.\n")
-       else run_ (succ count) (nor term)
+       else run_ (succ count) (evaluate strategy term)
 
 runWithEnv : Term -> Eff () [STATE Repl, STDIO]
 runWithEnv term = run_ 0 (term' (dict !get))
@@ -138,7 +143,7 @@ loop = do
 prog : Eff () [STATE Repl, STDIO, READLINE]
 prog = do
   readlineInit
-  (ReplState env _) <- get
+  (ReplState env _ _) <- get
   addDictEntries (map fst env)
   ansiPut "1;37" "lambdapants"
   putStrLn " \x03bb_\x03bb version 0.0.1"
@@ -146,4 +151,4 @@ prog = do
   loop
 
 main : IO ()
-main = Effects.runInit [ReplState stdEnv 150, (), ()] prog
+main = Effects.runInit [ReplState stdEnv 150 Normal, (), ()] prog
