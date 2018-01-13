@@ -6,14 +6,14 @@ import Lightyear.Char
 import Lightyear.Strings
 
 export
-atom : Parser String
-atom = pack <$> some (alphaNum <|> char '_')
+symbol : Parser String
+symbol = pack <$> some (alphaNum <|> char '_')
 
 export
 lambda : (body : Parser Term) -> Parser Term
 lambda term = do
   char '\\'
-  var  <- atom
+  var  <- symbol
   char '.'
   body <- term
   pure (Lam var body)
@@ -25,6 +25,6 @@ term = do
   pure (foldl1 App terms)
 where
   expr : Parser Term
-  expr = map Var atom  -- x
-    <|>| lambda term   -- \x.M
-    <|>| parens term   -- (M)
+  expr = map Var symbol  -- x
+    <|>| lambda term     -- \x.M
+    <|>| parens term     -- (M)

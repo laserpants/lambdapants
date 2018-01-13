@@ -8,10 +8,10 @@ import Lightyear.Char
 import Lightyear.Strings
 
 symbolArg : Parser String
-symbolArg = atom
+symbolArg = symbol
 
 termArg : Parser Term
-termArg = (char '(' *> term <* char ')') <|>| map Var atom
+termArg = (char '(' *> term <* char ')') <|>| map Var symbol
 
 natArg : Parser Nat
 natArg = (cast . pack) <$> some (satisfy isDigit)

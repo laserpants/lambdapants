@@ -63,15 +63,8 @@ export total
 isFreeIn : (v : String) -> (t : Term) -> Bool
 isFreeIn var term = elem var (freeVars term)
 
-||| Return all variables (free and bound) which appear in the term *t*.
-export total
-vars : (t : Term) -> List String
-vars (Var v)   = [v]
-vars (Lam v t) = v :: vars t
-vars (App t u) = vars t `union` vars u
-
 ||| De Bruijn-indexed intermediate representation for more convenient alpha
-||| equivalence comparison of terms.
+||| comparison of terms.
 data Indexed : Type where
   ||| Bound variable (depth indexed)
   Bound : Nat -> Indexed
@@ -99,8 +92,7 @@ Eq Indexed where
 ||| Translate the term *t* to canonical De Bruijn (depth-indexed) form.
 total
 toIndexed : (t : Term) -> Indexed
-toIndexed = indexed []
-where
+toIndexed = indexed [] where
   indexed : List String -> Term -> Indexed
   indexed bound (Var x)   = maybe (Free x) Bound (elemIndex x bound)
   indexed bound (App t u) = IxApp (indexed bound t) (indexed bound u)
