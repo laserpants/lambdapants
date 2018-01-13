@@ -76,6 +76,9 @@ record Repl where
 --first : Lens (a, c) (b, c) a b
 --first F inst f (a, b) = map (x => (x, b)) (f a)
 
+mapE_ : (a -> EffM m b xs (\underscore => xs)) -> List a -> EffM m () xs (\underscore => xs)
+mapE_ f xs = mapE f xs *> pure ()
+
 highlight : String -> String
 highlight s = "\ESC[0;92m" ++ s ++ "\ESC[0m"
 
@@ -114,8 +117,8 @@ setEvalOrder : Maybe Strategy -> Eff () [STATE Repl]
 setEvalOrder Nothing      = pure ()
 setEvalOrder (Just strat) = update (set_eval strat)
 
-printEnv : List (String, Term) -> Eff (List ()) [STDIO]
-printEnv xs = mapE (\s => entry s) xs where
+printEnv : List (String, Term) -> Eff () [STDIO]
+printEnv xs = mapE_ (\s => entry s) xs where
   spaces : Nat -> String
   spaces n = pack (replicate n ' ')
   colWidth : Nat
@@ -127,7 +130,14 @@ printEnv xs = mapE (\s => entry s) xs where
     putStrLn (pretty term)
 
 describe : Eff () [STDIO, STATE Repl]
-describe = printEnv (dict !get) *> pure ()
+describe = printEnv (dict !get)
+
+-- TODO consider nats
+termLookup : Term -> Eff () [STDIO, STATE Repl]
+termLookup term =
+  case map fst (filter (alphaEq term . snd) (dict !get)) of
+         [] => putStrLn "This term is not defined."
+         xs => mapE_ (\s => putStrLn s) xs
 
 export
 execute : Command -> Eff () [STATE Repl, STDIO, READLINE]
@@ -136,7 +146,7 @@ execute Env           = describe
 execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
 execute (Eq a b)      = putStrLn "Evaluate and compare"
 execute (Reduce t)    = putStrLn "Reduce a term"
-execute (Lookup t)    = putStrLn "Look up a term"
+execute (Lookup t)    = termLookup t
 execute (Save s t)    = saveTerm s t *> addDictEntry s
 execute (Delete term) = deleteTerm term
 execute (Limit max)   = updateLimit max
