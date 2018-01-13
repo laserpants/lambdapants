@@ -91,12 +91,9 @@ deleteTerm symbol = do
 saveTerm : String -> Term -> Eff () [STATE Repl, STDIO, READLINE]
 saveTerm symbol term =
   case lookup symbol (dict !get) of
-       Just found => do
+       Just found =>
          if found `alphaEq` term
-            then do
-              putStr "The term '"
-              putStr (highlight symbol)
-              putStrLn "' is already present."
+            then putStrLn "This term already exists."
             else do
               answer <- readline "Replace existing entry (y[es] to confirm)? "
               when (Just "y" == answer || Just "yes" == answer) save
