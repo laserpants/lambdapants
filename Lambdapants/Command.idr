@@ -132,7 +132,6 @@ printEnv xs = mapE_ (\s => entry s) xs where
 describe : Eff () [STDIO, STATE Repl]
 describe = printEnv (dict !get)
 
--- TODO consider nats
 termLookup : Term -> Eff () [STDIO, STATE Repl]
 termLookup term =
   case map fst (filter (alphaEq term . snd) (dict !get)) of
