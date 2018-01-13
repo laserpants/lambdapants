@@ -72,11 +72,6 @@ record Repl where
   limit : Nat
   eval  : Strategy
 
---Lens : Type -> Type -> Type -> Type -> Type
---Lens s t a b = (f : Type -> Type) -> Functor f -> (a -> f b) -> s -> f t
---first : Lens (a, c) (b, c) a b
---first F inst f (a, b) = map (x => (x, b)) (f a)
-
 mapE_ : (a -> EffM m b xs (\underscore => xs)) 
      -> List a 
      -> EffM m () xs (\underscore => xs)
