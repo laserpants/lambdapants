@@ -5,6 +5,7 @@ import Effect.State
 import Effect.StdIO
 import Effects
 import Lambdapants.Term
+import Lambdapants.Term.Nats
 
 public export
 Environment : Type
@@ -135,7 +136,9 @@ describe = printEnv (dict !get)
 termLookup : Term -> Eff () [STDIO, STATE Repl]
 termLookup term =
   case map fst (filter (alphaEq term . snd) (dict !get)) of
-         [] => putStrLn "This term is not defined."
+         [] => case decoded term of
+                    Just nat => putStrLn (show nat)
+                    Nothing  => putStrLn "This term is not defined."
          xs => mapE_ (\s => putStrLn s) xs
 
 export
