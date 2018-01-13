@@ -114,16 +114,20 @@ setEvalOrder : Maybe Strategy -> Eff () [STATE Repl]
 setEvalOrder Nothing      = pure ()
 setEvalOrder (Just strat) = update (set_eval strat)
 
-describe : Eff () [STATE Repl, STDIO]
-describe = mapE (\x => do
-                putStr (fst x)
-                putStr " "
-                putStrLn (pretty (snd x)))
-                (dict !get) *> pure ()
---describe (Just term) =
---  case lookup term (dict !get) of
---       Nothing => putStrLn "Sorry, there is no term with that name."
---       Just it => putStrLn (pretty it)
+printEnv : List (String, Term) -> Eff (List ()) [STDIO]
+printEnv xs = mapE (\s => entry s) xs where
+  spaces : Nat -> String
+  spaces n = pack (replicate n ' ')
+  colWidth : Nat
+  colWidth = 2 + foldr (max . Prelude.Strings.length . fst) 0 xs
+  entry : (String, Term) -> Eff () [STDIO]
+  entry (symb, term) = do
+    putStr symb
+    putStr (spaces (colWidth `minus` length symb))
+    putStrLn (pretty term)
+
+describe : Eff () [STDIO, STATE Repl]
+describe = printEnv (dict !get) *> pure ()
 
 export
 execute : Command -> Eff () [STATE Repl, STDIO, READLINE]
