@@ -44,7 +44,7 @@ commands =
   , ("reduce"  , (Arg1 Reduce termArg            , "<term>"))
   , ("eq"      , (Arg2 Eq termArg termArg        , "<term> <term>"))
   , ("aq"      , (Arg2 AlphaEq termArg termArg   , "<term> <term>"))
-  , ("show"    , (Arg1 Env (opt symbolArg)       , "[<symbol>]"))
+  , ("env"     , (Arg0 Env                       , ""))
   , ("eval"    , (Arg1 Eval (opt stratArg)       , "[normal | applicative]"))
   , ("?"       , (Arg0 Help                      , ""))
   , ("h"       , (Arg0 Help                      , ""))

@@ -26,8 +26,8 @@ public export
 data Command =
   ||| `:help` `:h` `:?`    -- Show help
   Help |
-  ||| `:show`              -- List environment or show a specific term
-  Env (Maybe String) |
+  ||| `:env`               -- List environment
+  Env |
   ||| `:aq`                -- Test two terms for alpha equality
   AlphaEq Term Term |
   ||| `:eq`                -- descr.
@@ -35,7 +35,8 @@ data Command =
   ||| `:reduce` `:r`       -- Apply one beta reduction step to the expression
   |||                         to derive a new term
   Reduce Term |
-  ||| `:lookup` `:l`       -- Look up a term in the environment
+  ||| `:lookup` `:l`       -- Look up a term in the environment (up to alpha
+  |||                         equivalence)
   Lookup Term |
   ||| `:save` `:s`         -- Add a term to the environment
   Save String Term |
@@ -43,14 +44,13 @@ data Command =
   Delete String |
   ||| `:limit`             -- Set maximum number of reductions
   Limit Nat |
-  ||| `:eval`              -- Set evaluation strategy
+  ||| `:eval`              -- Set/show evaluation strategy
   Eval (Maybe Strategy) |
   ||| `:quit` `:q`         -- Exit
   Quit
 
 export
 Eq Command where
-  (Env a)       == (Env b)       = a == b
   (AlphaEq s t) == (AlphaEq u v) = s == u && t == v
   (Eq s t)      == (Eq u v)      = s == u && t == v
   (Reduce s)    == (Reduce t)    = s == t
@@ -59,6 +59,7 @@ Eq Command where
   (Delete s)    == (Delete t)    = s == t
   (Limit m)     == (Limit n)     = m == n
   (Eval s)      == (Eval t)      = s == t
+  Env           == Env           = True
   Help          == Help          = True
   Quit          == Quit          = True
   _             == _             = False
@@ -113,21 +114,21 @@ setEvalOrder : Maybe Strategy -> Eff () [STATE Repl]
 setEvalOrder Nothing      = pure ()
 setEvalOrder (Just strat) = update (set_eval strat)
 
-describe : Maybe String -> Eff () [STATE Repl, STDIO]
-describe Nothing = mapE (\x => do 
-                        putStr (fst x) 
-                        putStr " " 
-                        putStrLn (pretty (snd x))) 
-                        (dict !get) *> pure ()
-describe (Just term) = 
-  case lookup term (dict !get) of
-       Nothing => putStrLn "Sorry, there is no term with that name."
-       Just it => putStrLn (pretty it)
+describe : Eff () [STATE Repl, STDIO]
+describe = mapE (\x => do
+                putStr (fst x)
+                putStr " "
+                putStrLn (pretty (snd x)))
+                (dict !get) *> pure ()
+--describe (Just term) =
+--  case lookup term (dict !get) of
+--       Nothing => putStrLn "Sorry, there is no term with that name."
+--       Just it => putStrLn (pretty it)
 
 export
 execute : Command -> Eff () [STATE Repl, STDIO, READLINE]
 execute Help          = putStrLn "Show help"
-execute (Env term)    = describe term
+execute Env           = describe
 execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
 execute (Eq a b)      = putStrLn "Evaluate and compare"
 execute (Reduce t)    = putStrLn "Reduce a term"
