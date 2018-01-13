@@ -92,7 +92,7 @@ deleteTerm symbol = do
        Nothing => putStrLn "There is no term with that name."
 
 saveTerm : String -> Term -> Eff () [STATE Repl, STDIO, READLINE]
-saveTerm symbol term = do
+saveTerm symbol term =
   case lookup symbol (dict !get) of
        Just found => do
          if found `alphaEq` term
