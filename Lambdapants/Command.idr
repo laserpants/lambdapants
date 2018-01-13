@@ -85,11 +85,10 @@ highlight s = "\ESC[0;92m" ++ s ++ "\ESC[0m"
 deleteTerm : String -> Eff () [STATE Repl, STDIO, READLINE]
 deleteTerm symbol = do
   let xs = dict !get
-  case lookup symbol xs of
-       Just found => do
-         update (set_dict (filter ((/= symbol) . fst) xs))
-         putStrLn (highlight "Deleted!")
-       Nothing => putStrLn "There is no term with that name."
+  if isJust (lookup symbol xs)
+     then do update (set_dict (filter ((/= symbol) . fst) xs))
+             putStrLn (highlight "Deleted!")
+     else putStrLn "There is no term with that name."
 
 saveTerm : String -> Term -> Eff () [STATE Repl, STDIO, READLINE]
 saveTerm symbol term =

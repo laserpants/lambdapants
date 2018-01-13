@@ -7,6 +7,7 @@ import Effects
 import Lambdapants.Command
 import Lambdapants.Command.Parser
 import Lambdapants.Term
+import Lambdapants.Term.Nats
 import Lambdapants.Term.Parser
 import Lambdapants.Term.Reduction
 import Lightyear.Strings
@@ -16,12 +17,6 @@ ansiPut code str = do
   putStr ("\ESC[" ++ code ++ "m")
   putStr str
   putStr "\ESC[0m"
-
-||| Return the Church encoded term corresponding to the provided number.
-churchEncoded : Nat -> Term
-churchEncoded n = Lam "f" (Lam "x" nat) where
-  nat : Term
-  nat = foldr apply (Var "x") (take n (repeat (Term.App (Var "f"))))
 
 stdEnv : Environment
 stdEnv = catMaybes (map f
@@ -77,7 +72,7 @@ replaceNats = rnats [] where
        then let d = cast name in
                 if d > 800 -- Treat numbers larger than 800 as literals
                    then Var name
-                   else churchEncoded d
+                   else encoded d
        else (Var name)
   rnats bound (App t u) = App (rnats bound t) (rnats bound u)
   rnats bound (Lam v t) = Lam v (rnats (v :: bound) t)

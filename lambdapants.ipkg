@@ -5,6 +5,7 @@ modules = Effects.Readline
         , Lambdapants.Command.Parser
         , Lambdapants.Readline
         , Lambdapants.Term
+        , Lambdapants.Term.Nats
         , Lambdapants.Term.Parser
         , Lambdapants.Term.Reduction
         , Main
