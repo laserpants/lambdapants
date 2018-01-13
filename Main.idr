@@ -3,6 +3,7 @@ module Main
 import Effect.Readline
 import Effect.State
 import Effect.StdIO
+import Effect.System
 import Effects
 import Lambdapants.Command
 import Lambdapants.Command.Parser
@@ -105,7 +106,7 @@ parseUnsafe input =
 exit : Eff () [STDIO]
 exit = ansiPut "0;37" "Bye!\n"
 
-loop : Eff () [STATE Repl, STDIO, READLINE]
+loop : Eff () [STATE Repl, STDIO, SYSTEM, READLINE]
 loop = do
   line <- readline "\001\ESC[0;96m\002\x03bb\001\ESC[0m\002 " -- Lambda sign
   case map trim line of
@@ -131,7 +132,7 @@ loop = do
               loop
        Nothing => putChar '\n' *> exit
 
-prog : Eff () [STATE Repl, STDIO, READLINE]
+prog : Eff () [STATE Repl, STDIO, SYSTEM, READLINE]
 prog = do
   readlineInit
   (ReplState env _ _) <- get
@@ -144,4 +145,4 @@ prog = do
   loop
 
 main : IO ()
-main = Effects.runInit [ReplState stdEnv 150 Normal, (), ()] prog
+main = Effects.runInit [ReplState stdEnv 150 Normal, (), (), ()] prog
