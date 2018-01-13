@@ -103,5 +103,9 @@ export
 parseCmd : String -> Either String Command
 parseCmd str = do
   case words str of
-       (w :: ws) => parseArgs w (unwords ws)
+       (w :: ws) => 
+            let args = unwords ws in 
+                if "!" == w 
+                   then Right (Shell args) 
+                   else parseArgs w args
        otherwise => Left "error"
