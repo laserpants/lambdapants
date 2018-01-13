@@ -114,7 +114,11 @@ setEvalOrder Nothing      = pure ()
 setEvalOrder (Just strat) = update (set_eval strat)
 
 describe : Maybe String -> Eff () [STATE Repl, STDIO]
-describe Nothing = pure ()
+describe Nothing = mapE (\x => 
+                   do putStr (fst x) 
+                      putStr " " 
+                      putStrLn (pretty (snd x))
+                      ) (dict !get) *> pure ()
 describe (Just term) = 
   case lookup term (dict !get) of
        Nothing => putStrLn "There is no term with that name."
