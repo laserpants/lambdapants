@@ -3,6 +3,7 @@ module Lambdapants.Command
 import Effect.Readline
 import Effect.State
 import Effect.StdIO
+import Effect.System
 import Effects
 import Lambdapants.Term
 import Lambdapants.Term.Nats
@@ -47,6 +48,8 @@ data Command =
   Limit Nat |
   ||| `:eval`              -- Set/show evaluation strategy
   Eval (Maybe Strategy) |
+  ||| '!'                  -- Run shell command
+  Shell String |
   ||| `:quit` `:q`         -- Exit
   Quit
 
@@ -60,6 +63,7 @@ Eq Command where
   (Delete s)    == (Delete t)    = s == t
   (Limit m)     == (Limit n)     = m == n
   (Eval s)      == (Eval t)      = s == t
+  (Shell a)     == (Shell b)     = a == b
   Env           == Env           = True
   Help          == Help          = True
   Quit          == Quit          = True
@@ -135,7 +139,7 @@ termLookup term =
          xs => mapE_ (\s => putStrLn s) xs
 
 export
-execute : Command -> Eff () [STATE Repl, STDIO, READLINE]
+execute : Command -> Eff () [STATE Repl, STDIO, SYSTEM, READLINE]
 execute Help          = putStrLn "Show help"
 execute Env           = describe
 execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
@@ -145,6 +149,7 @@ execute (Lookup t)    = termLookup t
 execute (Save s t)    = saveTerm s t *> addDictEntry s
 execute (Delete term) = deleteTerm term
 execute (Limit max)   = updateLimit max
+execute (Shell cmd)   = system cmd *> pure ()
 execute Quit          = pure ()
 execute (Eval arg)    = do
   setEvalOrder arg
