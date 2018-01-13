@@ -29,6 +29,12 @@ data ArgT
   | Arg2 (a -> b -> Command)      (Parser a) (Parser b)
   | Arg3 (a -> b -> c -> Command) (Parser a) (Parser b) (Parser c)
 
+arity : ArgT -> Nat
+arity (Arg0 _      ) = 0
+arity (Arg1 _ _    ) = 1
+arity (Arg2 _ _ _  ) = 2
+arity (Arg3 _ _ _ _) = 3
+
 commands : List (String, (ArgT, String))
 commands =
   [ ("q"       , (Arg0 Quit                      , ""))
@@ -52,7 +58,10 @@ commands =
   ]
 
 args : ArgT -> Parser Command
-args (Arg0 constr) = pure constr
+args (Arg0 constr) = do
+  spaces
+  eof
+  pure constr
 args (Arg1 constr arg1) = do
   a <- arg1
   spaces
@@ -82,8 +91,11 @@ where
   compile : ArgT -> String -> Either String Command
   compile argt hint = do
     case parse (args argt) argstr of
-         Left _  => Left ("Usage is :" ++ command ++ " " ++ hint)
-         right   => right
+         Left _  => Left (if 0 == arity argt
+                         then command ++ " is like Chuck Norris. \
+                           \It takes no arguments."
+                         else "Usage is :" ++ command ++ " " ++ hint)
+         right => right
   err : String
   err = "\ESC[0;91mUnrecognized command: " ++ command ++ "\ESC[0m"
 
