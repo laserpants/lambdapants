@@ -26,7 +26,7 @@ public export
 data Command =
   ||| `:help` `:h` `:?`    -- Show help
   Help |
-  ||| `:env`               -- List environment or show a specific term
+  ||| `:show`              -- List environment or show a specific term
   Env (Maybe String) |
   ||| `:aq`                -- Test two terms for alpha equality
   AlphaEq Term Term |
@@ -114,14 +114,14 @@ setEvalOrder Nothing      = pure ()
 setEvalOrder (Just strat) = update (set_eval strat)
 
 describe : Maybe String -> Eff () [STATE Repl, STDIO]
-describe Nothing = mapE (\x => 
-                   do putStr (fst x) 
-                      putStr " " 
-                      putStrLn (pretty (snd x))
-                      ) (dict !get) *> pure ()
+describe Nothing = mapE (\x => do 
+                        putStr (fst x) 
+                        putStr " " 
+                        putStrLn (pretty (snd x))) 
+                        (dict !get) *> pure ()
 describe (Just term) = 
   case lookup term (dict !get) of
-       Nothing => putStrLn "There is no term with that name."
+       Nothing => putStrLn "Sorry, there is no term with that name."
        Just it => putStrLn (pretty it)
 
 export
