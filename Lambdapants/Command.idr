@@ -77,7 +77,9 @@ record Repl where
 --first : Lens (a, c) (b, c) a b
 --first F inst f (a, b) = map (x => (x, b)) (f a)
 
-mapE_ : (a -> EffM m b xs (\underscore => xs)) -> List a -> EffM m () xs (\underscore => xs)
+mapE_ : (a -> EffM m b xs (\underscore => xs)) 
+     -> List a 
+     -> EffM m () xs (\underscore => xs)
 mapE_ f xs = mapE f xs *> pure ()
 
 highlight : String -> String
