@@ -8,4 +8,4 @@
 - [x] Church encoding of natural numbers
 - [x] Built-in SKI combinators and other standard terms (`plus`, `succ`, `true`, `false`, `pair`, `fact`, `Y`, etc.) :ski:
 - [ ] Documentation
-- [ ] Support for shell commands
+- [x] Support for shell commands
