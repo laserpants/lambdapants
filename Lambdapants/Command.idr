@@ -41,11 +41,11 @@ data Command =
   Save String Term |
   ||| `:delete` `:d`       -- Remove a term from the environment
   Delete String |
-  ||| `:quit` `:q`         -- Exit
-  Limit Nat |
   ||| `:limit`             -- Set maximum number of reductions
-  Eval (Maybe Strategy) |
+  Limit Nat |
   ||| `:eval`              -- Set evaluation strategy
+  Eval (Maybe Strategy) |
+  ||| `:quit` `:q`         -- Exit
   Quit
 
 export
@@ -78,16 +78,24 @@ record Repl where
 highlight : String -> String
 highlight s = "\ESC[0;92m" ++ s ++ "\ESC[0m"
 
+deleteTerm : String -> Eff () [STATE Repl, STDIO, READLINE]
+deleteTerm symbol = do
+  let xs = dict !get
+  case lookup symbol xs of
+       Just found => do
+         update (set_dict (filter ((/= symbol) . fst) xs))
+         putStrLn (highlight "Deleted!")
+       Nothing => putStrLn "There is no term with that name."
+
 saveTerm : String -> Term -> Eff () [STATE Repl, STDIO, READLINE]
 saveTerm symbol term = do
-  let store = dict !get
-  case lookup symbol store of
+  case lookup symbol (dict !get) of
        Just found => do
          if found `alphaEq` term
             then do
-              putStr "The term "
+              putStr "The term '"
               putStr (highlight symbol)
-              putStrLn " already exists."
+              putStrLn "' is already present."
             else do
               answer <- readline "Replace existing entry (y[es] to confirm)? "
               when (Just "y" == answer || Just "yes" == answer) save
@@ -105,26 +113,26 @@ setEvalOrder : Maybe Strategy -> Eff () [STATE Repl]
 setEvalOrder Nothing      = pure ()
 setEvalOrder (Just strat) = update (set_eval strat)
 
+describe : Maybe String -> Eff () [STATE Repl, STDIO]
+describe Nothing = pure ()
+describe (Just term) = 
+  case lookup term (dict !get) of
+       Nothing => putStrLn "There is no term with that name."
+       Just it => putStrLn (pretty it)
+
 export
 execute : Command -> Eff () [STATE Repl, STDIO, READLINE]
-execute Help = putStrLn "Show help"
-execute (Env _) = putStrLn "Show env"
+execute Help          = putStrLn "Show help"
+execute (Env term)    = describe term
 execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
-execute (Eq a b) = putStrLn "Evaluate and compare"
-execute (Reduce t) = putStrLn "Reduce a term"
-execute (Lookup t) = putStrLn "Look up a term"
-execute (Save s t) = do
-  --putStr "Saving term "
-  --putStr ("\ESC[0;93m")
-  --putStr s
-  --putStr "\ESC[0m"
-  --putStrLn " to environment."
-  saveTerm s t
-  addHistory s
-execute (Delete s) = pure ()
-execute (Limit max) = updateLimit max
-execute (Eval arg) = do
+execute (Eq a b)      = putStrLn "Evaluate and compare"
+execute (Reduce t)    = putStrLn "Reduce a term"
+execute (Lookup t)    = putStrLn "Look up a term"
+execute (Save s t)    = saveTerm s t *> addDictEntry s
+execute (Delete term) = deleteTerm term
+execute (Limit max)   = updateLimit max
+execute Quit          = pure ()
+execute (Eval arg)    = do
   setEvalOrder arg
   let strategy = eval !get
   putStrLn ("Evaluation is in " ++ toLower (show strategy) ++ " order.")
-execute Quit = pure ()
