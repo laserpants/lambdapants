@@ -89,7 +89,9 @@ where
     let n = limit !get
     let strategy = eval !get
     if (count >= n)
-       then ansiPut "0;91" ("Terminated! Too many (" ++ show n ++ ") reductions.\n")
+       then do
+         ansiPut "0;91" ("Terminated! Too many (" ++ show n ++ ") reductions.")
+         putStr "\n"
        else run_ (succ count) (evaluate strategy term)
 
 runWithEnv : Term -> Eff () [STATE Repl, STDIO]
@@ -104,7 +106,7 @@ parseUnsafe input =
        Right term => term
 
 exit : Eff () [STDIO]
-exit = ansiPut "0;37" "Bye!\n"
+exit = ansiPut "0;37" "Bye!" *> putStr "\n"
 
 loop : Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 loop = do
@@ -126,8 +128,8 @@ loop = do
               case parse term str of
                    Right t => runWithEnv t
                    otherwise => do
-                     ansiPut "0;91" "Not a valid term.\n"
-                     putStrLn "Format: <term> := <var> | \\<var>.<term> | (<term> <term>)"
+                     ansiPut "0;91" "Not a valid term."
+                     putStrLn "\nFormat: <term> := <var> | \\<var>.<term> | (<term> <term>)"
               loop
        Nothing => putChar '\n' *> exit
 
