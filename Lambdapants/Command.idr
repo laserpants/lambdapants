@@ -154,4 +154,4 @@ execute Quit          = pure ()
 execute (Eval arg)    = do
   setEvalOrder arg
   let strategy = eval !get
-  putStrLn ("Evaluation is in " ++ toLower (show strategy) ++ " order.")
+  putStrLn ("Evaluation proceeds in " ++ toLower (show strategy) ++ " order.")
