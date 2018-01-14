@@ -1,6 +1,6 @@
 module Main
 
-import Effect.Readline
+import Effect.Baseline
 import Effect.State
 import Effect.StdIO
 import Effect.System
@@ -106,14 +106,13 @@ parseUnsafe input =
 exit : Eff () [STDIO]
 exit = ansiPut "0;37" "Bye!\n"
 
-loop : Eff () [STATE Repl, STDIO, SYSTEM, READLINE]
+loop : Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 loop = do
-  line <- readline "\001\ESC[0;96m\002\x03bb\001\ESC[0m\002 " -- Lambda sign
+  line <- baseline "\x03bb " -- Lambda sign
   case map trim line of
        Just ""  => loop
        Just ":" => loop
-       Just str => do
-         addHistory str
+       Just str => 
          if ':' == strHead str
             then do
               case parseCmd (strTail str) of
@@ -132,9 +131,8 @@ loop = do
               loop
        Nothing => putChar '\n' *> exit
 
-prog : Eff () [STATE Repl, STDIO, SYSTEM, READLINE]
+prog : Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 prog = do
-  readlineInit
   (ReplState env _ _) <- get
   addDictEntries (map fst env)
   addDictEntry "normal"
@@ -142,7 +140,9 @@ prog = do
   ansiPut "1;37" "lambdapants"
   putStrLn " \x03bb_\x03bb version 0.0.1"
   putStrLn "Type :h for help"
+  readHistory ".history"
   loop
+  writeHistory ".history"
 
 main : IO ()
 main = Effects.runInit [ReplState stdEnv 150 Normal, (), (), ()] prog

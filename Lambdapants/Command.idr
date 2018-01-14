@@ -1,6 +1,6 @@
 module Lambdapants.Command
 
-import Effect.Readline
+import Effect.Baseline
 import Effect.State
 import Effect.StdIO
 import Effect.System
@@ -84,7 +84,7 @@ mapE_ f xs = mapE f xs *> pure ()
 highlight : String -> String
 highlight s = "\ESC[0;92m" ++ s ++ "\ESC[0m"
 
-deleteTerm : String -> Eff () [STATE Repl, STDIO, READLINE]
+deleteTerm : String -> Eff () [STATE Repl, STDIO, BASELINE]
 deleteTerm symbol = do
   let xs = dict !get
   if isJust (lookup symbol xs)
@@ -92,18 +92,18 @@ deleteTerm symbol = do
              putStrLn (highlight "Deleted!")
      else putStrLn "There is no term with that name."
 
-saveTerm : String -> Term -> Eff () [STATE Repl, STDIO, READLINE]
+saveTerm : String -> Term -> Eff () [STATE Repl, STDIO, BASELINE]
 saveTerm symbol term =
   case lookup symbol (dict !get) of
        Just found =>
          if found `alphaEq` term
             then putStrLn "This term already exists."
             else do
-              answer <- readline "Replace existing entry (y[es] to confirm)? "
+              answer <- baseline "Replace existing entry (y[es] to confirm)? "
               when (Just "y" == answer || Just "yes" == answer) save
        Nothing => save
 where
-  save : Eff () [STATE Repl, STDIO, READLINE]
+  save : Eff () [STATE Repl, STDIO, BASELINE]
   save = do
     update (set_dict ((symbol, term) :: dict !get))
     putStrLn (highlight "Saved!")
@@ -139,7 +139,7 @@ termLookup term =
          xs => mapE_ (\s => putStrLn s) xs
 
 export
-execute : Command -> Eff () [STATE Repl, STDIO, SYSTEM, READLINE]
+execute : Command -> Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 execute Help          = putStrLn "Show help"
 execute Env           = describe
 execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
