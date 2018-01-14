@@ -150,8 +150,8 @@ execute (Save s t)    = saveTerm s t *> addDictEntry s
 execute (Delete term) = deleteTerm term
 execute (Limit max)   = updateLimit max
 execute (Shell cmd)   = system cmd *> pure ()
-execute Quit          = pure ()
 execute (Eval arg)    = do
   setEvalOrder arg
   let strategy = eval !get
   putStrLn ("Evaluation proceeds in " ++ toLower (show strategy) ++ " order.")
+execute _ = pure ()
