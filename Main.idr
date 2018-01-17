@@ -85,14 +85,13 @@ run_ count term = do
   when (not (normal term)) continue
 where
   continue : Eff () [STATE Repl, STDIO]
-  continue = do
-    let n = limit !get
-    let strategy = eval !get
-    if (count >= n)
+  continue =
+    if (count >= limit !get)
        then do
-         ansiPut "0;91" ("Terminated! Too many (" ++ show n ++ ") reductions.")
-         putStr "\n"
-       else run_ (succ count) (evaluate strategy term)
+         ansiPut "0;91" ("Terminated! Too many reductions. \
+           \Use :limit to change maximum reduction depth.")
+         putChar '\n'
+       else run_ (succ count) (evaluate (eval !get) term)
 
 runWithEnv : Term -> Eff () [STATE Repl, STDIO]
 runWithEnv term = run_ 0 (term' (dict !get))
@@ -106,7 +105,7 @@ parseUnsafe input =
        Right term => term
 
 exit : Eff () [STDIO]
-exit = ansiPut "0;37" "Bye!" *> putStr "\n"
+exit = ansiPut "0;37" "Bye!" *> putChar '\n'
 
 loop : Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 loop = do
@@ -114,7 +113,7 @@ loop = do
   case map trim line of
        Just ""  => loop
        Just ":" => loop
-       Just str => 
+       Just str =>
          if ':' == strHead str
             then do
               case parseCmd (strTail str) of
