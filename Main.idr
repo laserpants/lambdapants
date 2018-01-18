@@ -121,8 +121,7 @@ loop = do
 
 prog : Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 prog = do
-  (ReplState env _ _) <- get
-  addDictEntries (map fst env)
+  addDictEntries (map fst (dict !get))
   addDictEntry "normal"
   addDictEntry "applicative"
   ansiPut "1;37" "lambdapants"
