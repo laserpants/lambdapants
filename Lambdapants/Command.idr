@@ -5,24 +5,10 @@ import Effect.State
 import Effect.StdIO
 import Effect.System
 import Effects
+import Lambdapants.Environment
 import Lambdapants.Term
 import Lambdapants.Term.Nats
-
-public export
-Environment : Type
-Environment = List (String, Term)
-
-public export
-data Strategy = Normal | Applicative
-
-Eq Strategy where
-  Normal      == Normal      = True
-  Applicative == Applicative = True
-  _           == _           = False
-
-Show Strategy where
-  show Normal      = "Normal"
-  show Applicative = "Applicative"
+import Lambdapants.Term.Reduction
 
 public export
 data Command =
