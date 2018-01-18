@@ -1,5 +1,11 @@
 # lambdapants
 
+Install the [lightyear](https://github.com/ziman/lightyear) and [baseline](https://github.com/laserpants/baseline-idris) libraries.
+
+```
+idris Main.idr -p lightyear -p effects -p baseline -o main
+```
+
 - [x] Readline-like history and tab completion (using the [baseline-idris](https://github.com/laserpants/baseline-idris) package)
 - [x] Normal order evaluation
 - [x] Applicative order evaluation
