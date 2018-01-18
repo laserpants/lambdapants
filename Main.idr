@@ -7,6 +7,7 @@ import Effect.System
 import Effects
 import Lambdapants.Command
 import Lambdapants.Command.Parser
+import Lambdapants.Environment
 import Lambdapants.Term
 import Lambdapants.Term.Nats
 import Lambdapants.Term.Parser
@@ -78,6 +79,11 @@ replaceNats = rnats [] where
   rnats bound (App t u) = App (rnats bound t) (rnats bound u)
   rnats bound (Lam v t) = Lam v (rnats (v :: bound) t)
 
+partial parseUnsafe : String -> Term
+parseUnsafe input =
+  case parse term input of
+       Right term => term
+
 run_ : Nat -> Term -> Eff () [STATE Repl, STDIO]
 run_ count term = do
   when (count > 0) (ansiPut "0;32" " \x21d2 ") -- Right arrow
@@ -85,11 +91,12 @@ run_ count term = do
   when (not (normal term)) continue
 where
   continue : Eff () [STATE Repl, STDIO]
-  continue =
-    if (count >= limit !get)
+  continue = do
+    let maxr = limit !get
+    if (count >= maxr)
        then do
-         ansiPut "0;91" ("Terminated! Too many reductions. \
-           \Use :limit to change maximum reduction depth.")
+         ansiPut "0;91" ("Terminated after " ++ show maxr ++ " reductions. \
+           \Use :limit to increase depth.")
          putChar '\n'
        else run_ (succ count) (evaluate (eval !get) term)
 
@@ -99,13 +106,8 @@ where
   term' : Environment -> Term
   term' = foldr (uncurry substitute) (replaceNats term)
 
-partial parseUnsafe : String -> Term
-parseUnsafe input =
-  case parse term input of
-       Right term => term
-
-exit : Eff () [STDIO]
-exit = ansiPut "0;37" "Bye!" *> putChar '\n'
+exitMsg : Eff () [STDIO]
+exitMsg = ansiPut "0;37" "Bye!" *> putChar '\n'
 
 loop : Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 loop = do
@@ -122,15 +124,16 @@ loop = do
                      loop
                    Right action => do
                      execute action
-                     if Quit == action then exit else loop
+                     if Quit == action then exitMsg else loop
             else do
               case parse term str of
                    Right t => runWithEnv t
                    otherwise => do
                      ansiPut "0;91" "Not a valid term."
-                     putStrLn "\nFormat: <term> := <var> | \\<var>.<term> | (<term> <term>)"
+                     putStrLn "\nThe format is \
+                       \<term> := <var> | \\<var>.<term> | (<term> <term>)"
               loop
-       Nothing => putChar '\n' *> exit
+       Nothing => putChar '\n' *> exitMsg
 
 prog : Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 prog = do
