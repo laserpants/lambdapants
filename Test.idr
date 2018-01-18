@@ -18,6 +18,9 @@ test = do
 
   -- Test reductions
 
+  putStrLn (show (isLeft (parse term "\\x.x )))")))
+  putStrLn (show (isRight (parse term "\\x.x")))
+
   let t0 = parseUnsafe_ "(\\x.\\y.x y) y"
   putStrLn (show (parseUnsafe_ "\\z.y z" `alphaEq` nor t0))
 

@@ -22,7 +22,7 @@ export
 term : Parser Term
 term = do
   terms <- some (spaces *> expr)
-  pure (foldl1 App terms)
+  pure (foldl1 App terms) <* spaces <* eof
 where
   expr : Parser Term
   expr = map Var symbol  -- x
