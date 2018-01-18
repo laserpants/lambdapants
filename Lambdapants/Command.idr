@@ -116,9 +116,6 @@ printEnv xs = mapE_ (\s => entry s) xs where
     putStr (spaces (colWidth `minus` length symb))
     putStrLn (pretty term)
 
-describe : Eff () [STDIO, STATE Repl]
-describe = printEnv (dict !get)
-
 termLookup : Term -> Eff () [STDIO, STATE Repl]
 termLookup term =
   case map fst (filter (alphaEq term . snd) (dict !get)) of
@@ -130,7 +127,7 @@ termLookup term =
 export
 execute : Command -> Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 execute Help          = putStrLn "Show help"
-execute Env           = describe
+execute Env           = printEnv (dict !get)
 execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
 execute (Eq a b)      = putStrLn "Evaluate and compare"
 execute (Reduce t)    = putStrLn "Reduce a term"

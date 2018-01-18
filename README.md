@@ -19,3 +19,5 @@ idris Main.idr -p lightyear -p effects -p baseline -o lambdapants
 - [ ] Command-line options
 - [x] Support for shell commands (`:! <command>`)
 - [x] Chuck Norris joke in error message
+- [x] Tests
+- [ ] More tests
