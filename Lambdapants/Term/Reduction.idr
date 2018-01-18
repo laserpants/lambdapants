@@ -1,9 +1,22 @@
 module Lambdapants.Term.Reduction
 
 import Lambdapants.Term
-import Lambdapants.Command
 
 %default total
+
+public export
+data Strategy = Normal | Applicative
+
+export
+Eq Strategy where
+  Normal      == Normal      = True
+  Applicative == Applicative = True
+  _           == _           = False
+
+export
+Show Strategy where
+  show Normal      = "Normal"
+  show Applicative = "Applicative"
 
 rename : String -> String -> Term -> Term
 rename fr to = translate where
