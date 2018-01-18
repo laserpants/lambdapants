@@ -20,11 +20,14 @@ lambda term = do
 
 export
 term : Parser Term
-term = do
-  terms <- some (spaces *> expr)
-  pure (foldl1 App terms) <* spaces <* eof
+term = appl <* spaces <* eof
 where
-  expr : Parser Term
-  expr = map Var symbol  -- x
-    <|>| lambda term     -- \x.M
-    <|>| parens term     -- (M)
+  mutual
+    appl : Parser Term
+    appl = do
+      terms <- some (spaces *> expr)
+      pure (foldl1 App terms) 
+    expr : Parser Term
+    expr = map Var symbol  -- x
+      <|>| lambda appl     -- \x.M
+      <|>| parens appl     -- (M)
