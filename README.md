@@ -3,7 +3,7 @@
 Requires the [lightyear](https://github.com/ziman/lightyear) and [baseline](https://github.com/laserpants/baseline-idris) libraries.
 
 ```
-idris Main.idr -p lightyear -p effects -p baseline -o main
+idris Main.idr -p lightyear -p effects -p baseline -o lambdapants
 ```
 
 - [x] Readline-like history and tab completion (using the [baseline-idris](https://github.com/laserpants/baseline-idris) package)
