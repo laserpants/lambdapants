@@ -12,7 +12,7 @@ symbolArg : Parser String
 symbolArg = symbol
 
 termArg : Parser Term
-termArg = (char '(' *> term <* char ')') <|>| map Var symbol
+termArg = parens appl <|>| map Var symbol
 
 natArg : Parser Nat
 natArg = (cast . pack) <$> some (satisfy isDigit)
