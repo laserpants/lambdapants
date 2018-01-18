@@ -124,13 +124,19 @@ termLookup term =
                     Nothing  => putStrLn "This term is not defined."
          xs => mapE_ (\s => putStrLn s) xs
 
+reduce : Term -> Eff () [STDIO, STATE Repl]
+reduce term = do
+  let term' = closed term (dict !get)
+  putStrLn (pretty term')
+  putStrLn ("\x21d2 " ++ pretty (evaluate (eval !get) term'))
+
 export
 execute : Command -> Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 execute Help          = putStrLn "Show help"
 execute Env           = printEnv (dict !get)
 execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
 execute (Eq a b)      = putStrLn "Evaluate and compare"
-execute (Reduce t)    = putStrLn "Reduce a term"
+execute (Reduce t)    = reduce t
 execute (Lookup t)    = termLookup t
 execute (Save s t)    = saveTerm s t *> addDictEntry s
 execute (Delete term) = deleteTerm term
