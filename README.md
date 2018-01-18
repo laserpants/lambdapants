@@ -8,4 +8,6 @@
 - [x] Church encoding of natural numbers
 - [x] Built-in SKI combinators and other standard terms (`plus`, `succ`, `true`, `false`, `pair`, `fact`, `Y`, etc.) :ski:
 - [ ] Documentation
+- [ ] Command-line options
 - [x] Support for shell commands (`:! <command>`)
+- [x] Chuck Norris joke in error message
