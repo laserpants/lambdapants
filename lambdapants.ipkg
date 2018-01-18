@@ -2,6 +2,7 @@ package lambdapants
 
 modules = Lambdapants.Command
         , Lambdapants.Command.Parser
+        , Lambdapants.Environment
         , Lambdapants.Term
         , Lambdapants.Term.Nats
         , Lambdapants.Term.Parser
