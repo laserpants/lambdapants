@@ -78,21 +78,24 @@ deleteTerm symbol = do
              putStrLn (highlight "Deleted!")
      else putStrLn "There is no term with that name."
 
+updateEnv : String -> Term -> Eff () [STATE Repl, STDIO]
+updateEnv symbol term = do
+  update (set_dict ((symbol, term) :: dict !get))
+  putStrLn (highlight "Saved!")
+
 saveTerm : String -> Term -> Eff () [STATE Repl, STDIO, BASELINE]
-saveTerm symbol term =
-  case lookup symbol (dict !get) of
-       Just found =>
-         if found `alphaEq` term
-            then putStrLn "This term already exists."
-            else do
-              answer <- baseline "Replace existing entry (y[es] to confirm)? "
-              when (Just "y" == answer || Just "yes" == answer) save
-       Nothing => save
-where
-  save : Eff () [STATE Repl, STDIO, BASELINE]
-  save = do
-    update (set_dict ((symbol, term) :: dict !get))
-    putStrLn (highlight "Saved!")
+saveTerm symbol term = save (closed term (dict !get)) where
+  save : Term -> Eff () [STATE Repl, STDIO, BASELINE]
+  save closed_term =
+    case lookup symbol (dict !get) of
+         Nothing => updateEnv symbol closed_term
+         Just this =>
+           if this `alphaEq` closed_term
+              then putStrLn "This term already exists."
+              else do
+                what <- baseline "Replace existing entry (y[es] to confirm)? "
+                when (Just "y" == what || Just "yes" == what) 
+                  (updateEnv symbol closed_term)
 
 updateLimit : Nat -> Eff () [STATE Repl]
 updateLimit lim = update (set_limit lim)
