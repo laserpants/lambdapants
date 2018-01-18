@@ -3,6 +3,7 @@ module Lambdapants.Command.Parser
 import Lambdapants.Command
 import Lambdapants.Term
 import Lambdapants.Term.Parser
+import Lambdapants.Term.Reduction
 import Lightyear
 import Lightyear.Char
 import Lightyear.Strings
