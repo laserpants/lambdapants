@@ -66,19 +66,6 @@ where
                   Left  _ => Nothing
                   Right t => Just (s, t)
 
-replaceNats : Term -> Term
-replaceNats = rnats [] where
-  rnats : List String -> Term -> Term
-  rnats bound (Var name) =
-    if not (elem name bound) && all isDigit (unpack name)
-       then let d = cast name in
-                if d > 800 -- Treat numbers larger than 800 as literals
-                   then Var name
-                   else encoded d
-       else (Var name)
-  rnats bound (App t u) = App (rnats bound t) (rnats bound u)
-  rnats bound (Lam v t) = Lam v (rnats (v :: bound) t)
-
 partial parseUnsafe : String -> Term
 parseUnsafe input =
   case parse term input of
@@ -101,10 +88,7 @@ where
        else run_ (succ count) (evaluate (eval !get) term)
 
 runWithEnv : Term -> Eff () [STATE Repl, STDIO]
-runWithEnv term = run_ 0 (term' (dict !get))
-where
-  term' : Environment -> Term
-  term' = foldr (uncurry substitute) (replaceNats term)
+runWithEnv term = run_ 0 (closed term (dict !get))
 
 exitMsg : Eff () [STDIO]
 exitMsg = ansiPut "0;37" "Bye!" *> putChar '\n'
