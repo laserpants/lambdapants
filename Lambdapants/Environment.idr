@@ -4,15 +4,17 @@ import Lambdapants.Term
 import Lambdapants.Term.Nats
 import Lambdapants.Term.Reduction
 
+%default total
+
 public export
 Environment : Type
 Environment = List (String, Term)
 
-export total
+export
 substEnv : Term -> Environment -> Term
 substEnv = foldr (uncurry substitute) 
 
-export total
+export
 encodeNats : Term -> Term
 encodeNats = enc [] where
   enc : List String -> Term -> Term
@@ -26,6 +28,6 @@ encodeNats = enc [] where
   enc bound (App t u) = App (enc bound t) (enc bound u)
   enc bound (Lam v t) = Lam v (enc (v :: bound) t)
 
-export total
+export
 closed : Term -> Environment -> Term
 closed = substEnv . encodeNats
