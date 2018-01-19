@@ -26,10 +26,10 @@ data Command =
   ||| `:lookup` `:l`       -- Look up a term in the environment (up to alpha
   |||                         equivalence)
   Lookup Term |
-  ||| `:save` `:s`         -- Add a term to the environment
-  Save String Term |
-  ||| `:delete` `:d`       -- Remove a term from the environment
-  Delete String |
+  ||| `:set` `:s`          -- Add a term to the environment
+  Set String Term |
+  ||| `:unset` `:u`        -- Remove a term from the environment
+  Unset String |
   ||| `:limit`             -- Set maximum number of reductions
   Limit Nat |
   ||| `:eval`              -- Set/show evaluation strategy
@@ -45,8 +45,8 @@ Eq Command where
   (Eq s t)      == (Eq u v)      = s == u && t == v
   (Reduce s)    == (Reduce t)    = s == t
   (Lookup s)    == (Lookup t)    = s == t
-  (Save s t)    == (Save u v)    = s == u && t == v
-  (Delete s)    == (Delete t)    = s == t
+  (Set s t)     == (Set u v)     = s == u && t == v
+  (Unset s)     == (Unset t)     = s == t
   (Limit m)     == (Limit n)     = m == n
   (Eval s)      == (Eval t)      = s == t
   (Shell a)     == (Shell b)     = a == b
@@ -148,8 +148,8 @@ execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
 execute (Eq a b)      = evalAndCompare a b
 execute (Reduce t)    = reduce t
 execute (Lookup t)    = termLookup t
-execute (Save s t)    = saveTerm s t *> addDictEntry s
-execute (Delete term) = deleteTerm term
+execute (Set s t)     = saveTerm s t *> addDictEntry s
+execute (Unset term)  = deleteTerm term
 execute (Limit max)   = updateLimit max
 execute (Shell cmd)   = system cmd *> pure ()
 execute (Eval arg)    = setEvalOrder arg

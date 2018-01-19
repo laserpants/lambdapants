@@ -41,12 +41,12 @@ commands =
   [ ("q"       , (Arg0 Quit                      , ""))
   , ("quit"    , (Arg0 Quit                      , ""))
   , ("limit"   , (Arg1 Limit natArg              , "<number>"))
-  , ("d"       , (Arg1 Delete symbolArg          , "<symbol>"))
-  , ("delete"  , (Arg1 Delete symbolArg          , "<symbol>"))
-  , ("s"       , (Arg2 Save symbolArg termArg    , "<symbol> <term>"))
-  , ("save"    , (Arg2 Save symbolArg termArg    , "<symbol> <term>"))
-  , ("l"       , (Arg1 Lookup termArg            , "<term>"))
-  , ("lookup"  , (Arg1 Lookup termArg            , "<term>"))
+  , ("u"       , (Arg1 Unset symbolArg           , "<symbol>"))
+  , ("unset"   , (Arg1 Unset symbolArg           , "<symbol>"))
+  , ("s"       , (Arg2 Set symbolArg termArg     , "<symbol> <term>"))
+  , ("set"     , (Arg2 Set symbolArg termArg     , "<symbol> <term>"))
+  , ("w"       , (Arg1 Lookup termArg            , "<term>"))
+  , ("whatis"  , (Arg1 Lookup termArg            , "<term>"))
   , ("r"       , (Arg1 Reduce termArg            , "<term>"))
   , ("reduce"  , (Arg1 Reduce termArg            , "<term>"))
   , ("eq"      , (Arg2 Eq termArg termArg        , "<term> <term>"))
@@ -55,8 +55,7 @@ commands =
   , ("eval"    , (Arg1 Eval (opt stratArg)       , "[normal | applicative]"))
   , ("?"       , (Arg0 Help                      , ""))
   , ("h"       , (Arg0 Help                      , ""))
-  , ("help"    , (Arg0 Help                      , ""))
-  ]
+  , ("help"    , (Arg0 Help                      , "")) ]
 
 args : ArgT -> Parser Command
 args (Arg0 constr) = do
