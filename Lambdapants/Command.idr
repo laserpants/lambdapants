@@ -100,9 +100,14 @@ saveTerm symbol term = save (closed term (dict !get)) where
 updateLimit : Nat -> Eff () [STATE Repl]
 updateLimit lim = update (set_limit lim)
 
-setEvalOrder : Maybe Strategy -> Eff () [STATE Repl]
-setEvalOrder Nothing      = pure ()
-setEvalOrder (Just strat) = update (set_eval strat)
+setEvalOrder : Maybe Strategy -> Eff () [STDIO, STATE Repl]
+setEvalOrder strategy = do
+  set strategy
+  putStrLn ("Evaluation proceeds in " ++ toLower (show (eval !get)) ++ " order.")
+where
+  set : Maybe Strategy -> Eff () [STATE Repl]
+  set Nothing  = pure ()
+  set (Just s) = update (set_eval s)
 
 printEnv : List (String, Term) -> Eff () [STDIO]
 printEnv xs = mapE_ (\s => entry s) xs where
@@ -130,20 +135,22 @@ reduce term = do
   putStrLn (pretty term')
   putStrLn ("\x21d2 " ++ pretty (evaluate (eval !get) term'))
 
+evalAndCompare : Term -> Term -> Eff () [STDIO, STATE Repl]
+evalAndCompare s t = do
+  putStrLn "TODO"
+  pure ()
+
 export
 execute : Command -> Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
 execute Help          = putStrLn "Show help"
 execute Env           = printEnv (dict !get)
 execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
-execute (Eq a b)      = putStrLn "Evaluate and compare"
+execute (Eq a b)      = evalAndCompare a b
 execute (Reduce t)    = reduce t
 execute (Lookup t)    = termLookup t
 execute (Save s t)    = saveTerm s t *> addDictEntry s
 execute (Delete term) = deleteTerm term
 execute (Limit max)   = updateLimit max
 execute (Shell cmd)   = system cmd *> pure ()
-execute (Eval arg)    = do
-  setEvalOrder arg
-  let strategy = eval !get
-  putStrLn ("Evaluation proceeds in " ++ toLower (show strategy) ++ " order.")
+execute (Eval arg)    = setEvalOrder arg
 execute _ = pure ()
