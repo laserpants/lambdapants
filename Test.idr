@@ -113,9 +113,9 @@ test = do
   putStrLn (show (parseCmd "lookup  "     == Left "Usage is :lookup <term>"))
   putStrLn (show (parseCmd "l"            == Left "Usage is :l <term>"))
   putStrLn (show (isLeft (parseCmd "lookupx")))
-  putStrLn (show (parseCmd "lookup X"     == Right (Lookup (Var "X"))))
-  putStrLn (show (parseCmd "lookup (X Y)" == Right (Lookup (App (Var "X") (Var "Y")))))
-  putStrLn (show (parseCmd "l (X Y)"      == Right (Lookup (App (Var "X") (Var "Y")))))
+  putStrLn (show (parseCmd "lookup X"     == Right (Whatis (Var "X"))))
+  putStrLn (show (parseCmd "lookup (X Y)" == Right (Whatis (App (Var "X") (Var "Y")))))
+  putStrLn (show (parseCmd "l (X Y)"      == Right (Whatis (App (Var "X") (Var "Y")))))
 
   putStrLn (show (parseCmd "delete "    == Left "Usage is :delete <symbol>"))
   putStrLn (show (parseCmd "delete"     == Left "Usage is :delete <symbol>"))
