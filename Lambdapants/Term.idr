@@ -89,7 +89,7 @@ Eq Indexed where
   (IxLam t)   == (IxLam u)   = t == u
   _           == _           = False
 
-||| Translate the term *t* to canonical De Bruijn (depth-indexed) form.
+||| Translate the term *t* to a canonical De Bruijn (depth-indexed) form.
 total
 toIndexed : (t : Term) -> Indexed
 toIndexed = indexed [] where
