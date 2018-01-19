@@ -93,3 +93,7 @@ export
 evaluate : Strategy -> Term -> Term
 evaluate Normal      = nor
 evaluate Applicative = aor
+
+export
+stream : Strategy -> Term -> Stream Term
+stream strategy = iterate (evaluate strategy)
