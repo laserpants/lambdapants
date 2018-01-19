@@ -23,7 +23,7 @@ data Command =
   ||| `:reduce` `:r`       -- Apply one beta reduction step to the expression
   |||                         to derive a new term
   Reduce Term |
-  ||| `:lookup` `:l`       -- Look up a term in the environment (up to alpha
+  ||| `:whatis` `:w`       -- Look up a term in the environment (up to alpha
   |||                         equivalence)
   Lookup Term |
   ||| `:set` `:s`          -- Add a term to the environment
