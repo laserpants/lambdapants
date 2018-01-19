@@ -23,8 +23,9 @@ data Command =
   ||| `:reduce` `:r`       -- Apply one beta reduction step to the expression
   |||                         to derive a new term
   Reduce Term |
-  ||| `:whatis` `:w`       -- Look up a term in the environment (up to alpha
-  |||                         equivalence)
+  -- TODO: Step |                   -- Repeated reduction
+  ||| `:whatis` `:w`       -- Look up a term (up to alpha equivalence) in the 
+  |||                         environment)
   Whatis Term |
   ||| `:set` `:s`          -- Add a term to the environment
   Set String Term |
