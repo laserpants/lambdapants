@@ -18,9 +18,11 @@ apps f x = count 1 where
   count n (App (Var g) e)       = if g == f then count (succ n) e else Nothing
   count _ _                     = Nothing
 
+||| Return the natural number interpretation of the term, if it corresponds to
+||| a valid Church encoding.
 export
 decoded : Term -> Maybe Nat
-decoded (Lam f (Lam x term)) = 
+decoded (Lam f (Lam x term)) =
   case term of
        Var v   => if v == x then Just 0 else Nothing
        App _ _ => apps f x term
