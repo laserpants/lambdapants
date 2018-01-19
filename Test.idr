@@ -109,9 +109,9 @@ test = do
   putStrLn (show (isLeft (parseCmd "reducex")))
   putStrLn (show (parseCmd "reduce X"   == Right (Reduce (Var "X"))))
 
-  putStrLn (show (parseCmd "whatis"       == Left "Usage is :whatis <term>"))
-  putStrLn (show (parseCmd "whatis  "     == Left "Usage is :whatis <term>"))
-  putStrLn (show (parseCmd "w"            == Left "Usage is :w <term>"))
+  putStrLn (show (parseCmd "whatis"     == Left "Usage is :whatis <term>"))
+  putStrLn (show (parseCmd "whatis  "   == Left "Usage is :whatis <term>"))
+  putStrLn (show (parseCmd "w"          == Left "Usage is :w <term>"))
   putStrLn (show (isLeft (parseCmd "whatisx")))
   putStrLn (show (parseCmd "whatis X"     == Right (Whatis (Var "X"))))
   putStrLn (show (parseCmd "whatis (X Y)" == Right (Whatis (App (Var "X") (Var "Y")))))
