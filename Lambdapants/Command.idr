@@ -25,7 +25,7 @@ data Command =
   Reduce Term |
   ||| `:whatis` `:w`       -- Look up a term in the environment (up to alpha
   |||                         equivalence)
-  Lookup Term |
+  Whatis Term |
   ||| `:set` `:s`          -- Add a term to the environment
   Set String Term |
   ||| `:unset` `:u`        -- Remove a term from the environment
@@ -44,7 +44,7 @@ Eq Command where
   (AlphaEq s t) == (AlphaEq u v) = s == u && t == v
   (Eq s t)      == (Eq u v)      = s == u && t == v
   (Reduce s)    == (Reduce t)    = s == t
-  (Lookup s)    == (Lookup t)    = s == t
+  (Whatis s)    == (Whatis t)    = s == t
   (Set s t)     == (Set u v)     = s == u && t == v
   (Unset s)     == (Unset t)     = s == t
   (Limit m)     == (Limit n)     = m == n
@@ -121,8 +121,8 @@ printEnv xs = mapE_ (\s => entry s) xs where
     putStr (spaces (colWidth `minus` length symb))
     putStrLn (pretty term)
 
-termLookup : Term -> Eff () [STDIO, STATE Repl]
-termLookup term =
+termWhatis : Term -> Eff () [STDIO, STATE Repl]
+termWhatis term =
   case map fst (filter (alphaEq term . snd) (dict !get)) of
          [] => case decoded term of
                     Just nat => putStrLn (show nat)
@@ -147,7 +147,7 @@ execute Env           = printEnv (dict !get)
 execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
 execute (Eq a b)      = evalAndCompare a b
 execute (Reduce t)    = reduce t
-execute (Lookup t)    = termLookup t
+execute (Whatis t)    = termWhatis t
 execute (Set s t)     = saveTerm s t *> addDictEntry s
 execute (Unset term)  = deleteTerm term
 execute (Limit max)   = updateLimit max
