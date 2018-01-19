@@ -9,7 +9,7 @@ export
 encoded : Nat -> Term
 encoded n = Lam "f" (Lam "x" nat) where
   nat : Term
-  nat = foldr apply (Var "x") (take n (repeat (Term.App (Var "f"))))
+  nat = foldr apply (Var "x") (replicate n (Term.App (Var "f")))
 
 apps : String -> String -> Term -> Maybe Nat
 apps f x = count 1 where
