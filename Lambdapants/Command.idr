@@ -147,15 +147,15 @@ printHelp = putStrLn "\
   \<expr>                  Evaluate an expression of the form <term> := <var> | \\<var>.<term> | (<term> <term>).\n\
   \:!                      Run a shell command.                                                                  \n\
   \:h :? :help             Show this help.                                                                       \n\
-  \:env                                                                                                          \n\
+  \:env                    List environment.                                                                     \n\
   \:aq                     Test two terms for alpha equality.                                                    \n\
   \:eq                                                                                                           \n\
   \:r :reduce                                                                                                    \n\
-  \:w :whatis                                                                                                    \n\
+  \:w :whatis              Look up a term (up to alpha equivalence) in the environment.                          \n\
   \:s :set                                                                                                       \n\
   \:u :unset                                                                                                     \n\
-  \:limit                                                                                                        \n\
-  \:eval                                                                                                         \n\
+  \:limit                  Set maximum number of reductions.                                                     \n\
+  \:eval                   Set or show evaluation strategy.                                                      \n\
   \:q :quit                Exit"
 
 export
