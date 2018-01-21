@@ -9,3 +9,6 @@ data AnsiColor = Black
                | Purple
                | Cyan
                | White
+
+--decorated : String -> String
+--decorated input = ?decorated
