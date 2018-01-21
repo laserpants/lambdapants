@@ -14,8 +14,8 @@ data Color
   | White
 
 public export
-data AnsiColor 
-  = Regular Color 
+data AnsiColor
+  = Regular Color
   | Intense Color
 
 public export
@@ -63,8 +63,8 @@ decorated style fg bg str = "\ESC[" ++ body ++ "m" ++ str ++ "\ESC[0m" where
 
 export
 error : String -> String
-error = decorated Bold (Just (Intense Red)) Nothing 
+error = decorated Bold (Just (Intense Red)) Nothing
 
 export
 okay : String -> String
-okay = decorated Normal (Just (Regular Green)) Nothing 
+okay = decorated Normal (Just (Regular Green)) Nothing
