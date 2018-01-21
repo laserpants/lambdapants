@@ -92,6 +92,7 @@ test = do
   putStrLn (show (parseCmd "?"          == Right Help))
   putStrLn (show (isLeft (parseCmd "?elp")))
 
+  putStrLn (show (parseCmd "aq (\\x.x) Y" == Right (AlphaEq (Lam "x" (Var "x")) (Var "Y"))))
   putStrLn (show (parseCmd "aq X Y"     == Right (AlphaEq (Var "X") (Var "Y"))))
   putStrLn (show (isLeft (parseCmd "aqX Y")))
   putStrLn (show (parseCmd "aq X"       == Left "Usage is :aq <term> <term>"))
