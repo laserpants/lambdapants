@@ -18,7 +18,7 @@ data Command =
   Env |
   ||| `:aq`                -- Test two terms for alpha equality
   AlphaEq Term Term |
-  ||| `:eq`                -- descr.
+  ||| `:eq`                -- TODO: descr.
   Eq Term Term |
   ||| `:reduce` `:r`       -- Apply one beta reduction step to the expression
   |||                         to derive a new term
@@ -141,9 +141,26 @@ evalAndCompare s t = do
   putStrLn "TODO"
   pure ()
 
+printHelp : Eff () [STDIO]
+printHelp = putStrLn "\
+  \Command      Arguments  Description                                                                           \n\
+  \<expr>                  Evaluate an expression of the form <term> := <var> | \\<var>.<term> | (<term> <term>).\n\
+  \:!                      Run a shell command.                                                                  \n\
+  \:h :? :help             Show this help.                                                                       \n\
+  \:env                                                                                                          \n\
+  \:aq                     Test two terms for alpha equality.                                                    \n\
+  \:eq                                                                                                           \n\
+  \:r :reduce                                                                                                    \n\
+  \:w :whatis                                                                                                    \n\
+  \:s :set                                                                                                       \n\
+  \:u :unset                                                                                                     \n\
+  \:limit                                                                                                        \n\
+  \:eval                                                                                                         \n\
+  \:q :quit                Exit"
+
 export
 execute : Command -> Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
-execute Help          = putStrLn "Show help"
+execute Help          = printHelp
 execute Env           = printEnv (dict !get)
 execute (AlphaEq a b) = putStrLn (toLower (show (alphaEq a b)))
 execute (Eq a b)      = evalAndCompare a b
