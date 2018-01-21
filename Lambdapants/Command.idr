@@ -18,7 +18,8 @@ data Command =
   Env |
   ||| `:aq`                -- Test two terms for alpha equality
   AlphaEq Term Term |
-  ||| `:eq`                -- TODO: descr.
+  ||| `:eq`                -- Compare the normal forms (if reduction
+  |||                         terminates) of two terms.
   Eq Term Term |
   ||| `:reduce` `:r`       -- Apply one beta reduction step to the expression
   |||                         to derive a new term
