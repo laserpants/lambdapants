@@ -1,14 +1,19 @@
 module Lambdapants.Colors
 
 export
-data AnsiColor = Black 
-               | Red
-               | Green
-               | Yellow
-               | Blue
-               | Purple
-               | Cyan
-               | White
+data AnsiColor 
+  = Black  | IntenseBlack
+  | Red    | IntenseRed
+  | Green  | IntenseGreen  
+  | Yellow | IntenseYellow 
+  | Blue   | IntenseBlue   
+  | Purple | IntensePurple 
+  | Cyan   | IntenseCyan   
+  | White  | IntenseWhite  
 
---decorated : String -> String
---decorated input = ?decorated
+record AnsiStyle where	  
+  constructor Style
+  foreground : AnsiColor
+  background : AnsiColor
+  bold       : Bool
+  underline  : Bool
