@@ -14,7 +14,9 @@ data Color
   | White
 
 public export
-data AnsiColor = Regular Color | Intense Color
+data AnsiColor 
+  = Regular Color 
+  | Intense Color
 
 public export
 data Style
