@@ -24,7 +24,7 @@ data Command =
   |||                         to derive a new term
   Reduce Term |
   -- TODO: Step |                   -- Repeated reduction
-  ||| `:whatis` `:w`       -- Look up a term (up to alpha equivalence) in the 
+  ||| `:whatis` `:w`       -- Look up a term (up to alpha equivalence) in the
   |||                         environment)
   Whatis Term |
   ||| `:set` `:s`          -- Add a term to the environment
@@ -63,8 +63,8 @@ record Repl where
   limit : Nat
   eval  : Strategy
 
-mapE_ : (a -> EffM m b xs (\underscore => xs)) 
-     -> List a 
+mapE_ : (a -> EffM m b xs (\underscore => xs))
+     -> List a
      -> EffM m () xs (\underscore => xs)
 mapE_ f xs = mapE f xs *> pure ()
 
@@ -95,7 +95,7 @@ saveTerm symbol term = save (closed term (dict !get)) where
               then putStrLn "This term already exists."
               else do
                 what <- baseline "Replace existing entry (y[es] to confirm)? "
-                when (Just "y" == what || Just "yes" == what) 
+                when (Just "y" == what || Just "yes" == what)
                   (updateEnv symbol closed_term)
 
 updateLimit : Nat -> Eff () [STATE Repl]
@@ -104,7 +104,7 @@ updateLimit lim = update (set_limit lim)
 setEvalOrder : Maybe Strategy -> Eff () [STDIO, STATE Repl]
 setEvalOrder strategy = do
   set strategy
-  putStrLn ("Evaluation proceeds in " ++ toLower (show (eval !get)) ++ " order.")
+  putStrLn ("Evaluation is set to " ++ toLower (show (eval !get)) ++ " order.")
 where
   set : Maybe Strategy -> Eff () [STATE Repl]
   set Nothing  = pure ()
