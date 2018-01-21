@@ -5,6 +5,7 @@ import Effect.State
 import Effect.StdIO
 import Effect.System
 import Effects
+import Lambdapants.Colors
 import Lambdapants.Command
 import Lambdapants.Command.Parser
 import Lambdapants.Environment
@@ -73,7 +74,7 @@ parseUnsafe input =
 
 run_ : Nat -> Term -> Eff () [STATE Repl, STDIO]
 run_ count term = do
-  when (count > 0) (ansiPut "0;32" " \x21d2 ") -- Right arrow
+  when (count > 0) (putStr (okay " \x21d2 ")) -- Right arrow
   putStrLn (pretty term)
   when (not (normal term)) continue
 where
@@ -113,8 +114,8 @@ loop = do
               case parse term str of
                    Right t => runWithEnv t
                    otherwise => do
-                     ansiPut "0;91" "Not a valid term."
-                     putStrLn "\nThe format is \
+                     putStr (error "Not a valid term. ")
+                     putStrLn "Format is \
                        \<term> := <var> | \\<var>.<term> | (<term> <term>)"
               loop
        Nothing => putChar '\n' *> exitMsg

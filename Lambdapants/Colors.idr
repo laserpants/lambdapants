@@ -58,3 +58,11 @@ decorated style fg bg str = "\ESC[" ++ body ++ "m" ++ str ++ "\ESC[0m" where
   codes = catMaybes [ Just (font style), background <$> bg, foreground <$> fg ]
   body : String
   body = foldr (++) "" (intersperse ";" codes)
+
+export
+error : String -> String
+error = decorated Bold (Just (Intense Red)) Nothing 
+
+export
+okay : String -> String
+okay = decorated Normal (Just (Regular Green)) Nothing 
