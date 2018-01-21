@@ -143,20 +143,21 @@ evalAndCompare s t = do
 
 printHelp : Eff () [STDIO]
 printHelp = putStrLn "\
-  \Command      Arguments  Description                                                                           \n\
-  \<expr>                  Evaluate an expression of the form <term> := <var> | \\<var>.<term> | (<term> <term>).\n\
-  \:!                      Run a shell command.                                                                  \n\
-  \:h :? :help             Show this help.                                                                       \n\
-  \:env                    List environment.                                                                     \n\
-  \:aq                     Test two terms for alpha equality.                                                    \n\
-  \:eq                                                                                                           \n\
-  \:r :reduce                                                                                                    \n\
-  \:w :whatis              Look up a term (up to alpha equivalence) in the environment.                          \n\
-  \:s :set                                                                                                       \n\
-  \:u :unset                                                                                                     \n\
-  \:limit                  Set maximum number of reductions.                                                     \n\
-  \:eval                   Set or show evaluation strategy.                                                      \n\
-  \:q :quit                Exit"
+  \Command     Arguments            Description                                                                           \n\
+  \-----------------------------------------------------------------------------------------------------------------------\n\
+  \<expr>                           Evaluate an expression of the form <term> := <var> | \\<var>.<term> | (<term> <term>).\n\
+  \:!                               Run a shell command.                                                                  \n\
+  \:h :? :help                      Show this help.                                                                       \n\
+  \:env                             List environment.                                                                     \n\
+  \:aq         <term> <term>        Test two terms for alpha equality.                                                    \n\
+  \:eq         <term> <term>        Compare the normal forms (if reduction terminates) of two terms.                      \n\
+  \:r :reduce  <term>               Apply one beta reduction step to the expression.                                      \n\
+  \:w :whatis  <term>               Look up a term (up to alpha equivalence) in the environment.                          \n\
+  \:s :set     <symbol> <term>      Add a term to the environment.                                                        \n\
+  \:u :unset   <symbol>             Remove a term from the environment.                                                   \n\
+  \:limit      <number>             Set maximum number of reductions.                                                     \n\
+  \:eval       [normal|applicative] Set or show evaluation strategy.                                                      \n\
+  \:q :quit                         Exit"
 
 export
 execute : Command -> Eff () [STATE Repl, STDIO, SYSTEM, BASELINE]
