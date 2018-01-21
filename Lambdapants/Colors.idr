@@ -53,7 +53,7 @@ font Strikethrough = "9"
 
 export
 decorated : Style -> Maybe AnsiColor -> Maybe AnsiColor -> String -> String
-decorated style fg bg input = "\ESC[" ++ body ++ "m" ++ input ++ "\ESC[0m" where
+decorated style fg bg str = "\ESC[" ++ body ++ "m" ++ str ++ "\ESC[0m" where
   codes : List String
   codes = catMaybes [ Just (font style), background <$> bg, foreground <$> fg ]
   body : String
