@@ -12,7 +12,7 @@ Environment = List (String, Term)
 
 export
 substEnv : Term -> Environment -> Term
-substEnv = foldr (uncurry substitute) 
+substEnv = foldr (uncurry substitute)
 
 export
 encodeNats : Term -> Term
